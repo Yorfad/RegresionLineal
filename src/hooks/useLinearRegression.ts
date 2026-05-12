@@ -123,8 +123,10 @@ export function useLinearRegression() {
   };
 
   const reset = () => {
+    setData(DEFAULT_DATA);
     setM(0);
     setB(0);
+    setLearningRate(0.01);
     setIteration(1);
     setCurrentStep(Step.PREDICTIONS);
     setHistory([]);
