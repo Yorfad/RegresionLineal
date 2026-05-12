@@ -1,0 +1,134 @@
+import { useState } from 'react';
+import { useLinearRegression, StepName } from './hooks/useLinearRegression';
+import { Sidebar } from './components/Sidebar';
+import { MainChart } from './components/MainChart';
+import { MathPanel } from './components/MathPanel';
+import { Chatbot } from './components/Chatbot';
+import { TheoryPage } from './pages/TheoryPage';
+import { Play, SkipForward, SkipBack, RotateCcw, BookOpen, Activity } from 'lucide-react';
+
+function App() {
+  const lr = useLinearRegression();
+  const [activeTab, setActiveTab] = useState<'simulator' | 'theory'>('simulator');
+
+  return (
+    <div className="h-screen w-full bg-slate-950 text-slate-100 flex flex-col overflow-hidden font-sans relative">
+      {/* Top Main Navbar */}
+      <nav className="w-full bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-10 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
+             <Activity size={24} />
+          </div>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent hidden sm:block">
+            Simulador de Regresión Lineal
+          </h1>
+        </div>
+        <div className="flex gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
+          <button 
+            onClick={() => setActiveTab('simulator')}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all ${activeTab === 'simulator' ? 'bg-slate-800 text-blue-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <Activity size={18} /> Simulador
+          </button>
+          <button 
+            onClick={() => setActiveTab('theory')}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all ${activeTab === 'theory' ? 'bg-slate-800 text-emerald-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <BookOpen size={18} /> Teoría y Casos Reales
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {activeTab === 'simulator' ? (
+          <>
+            <Sidebar 
+              data={lr.data} 
+              setData={lr.setData}
+              m={lr.m}
+              setM={lr.setM}
+              b={lr.b}
+              setB={lr.setB}
+              learningRate={lr.learningRate} 
+              setLearningRate={lr.setLearningRate} 
+            />
+
+            <main className="flex-1 flex flex-col p-6 gap-6 overflow-y-auto relative">
+              {/* Top Header Controls */}
+              <header className="bg-slate-800 rounded-xl border border-slate-700 p-4 flex flex-wrap gap-4 items-center justify-between shadow-sm shrink-0">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                      <span className="text-blue-400">Iteración:</span> {lr.iteration}
+                    </h2>
+                    <p className="text-sm text-slate-400 font-medium">
+                      Paso actual: <span className="text-emerald-400">{StepName[lr.currentStep]}</span>
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 overflow-x-auto">
+                  <button 
+                    onClick={lr.prevStep} 
+                    disabled={lr.currentStep === 0 && lr.iteration === 1}
+                    className="px-3 py-2 flex items-center gap-2 text-sm font-medium rounded-md hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-slate-300"
+                  >
+                    <SkipBack size={16} /> Anterior
+                  </button>
+                  <button 
+                    onClick={lr.nextStep} 
+                    className="px-4 py-2 flex items-center gap-2 text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors shadow-lg shadow-blue-500/20"
+                  >
+                    Siguiente <SkipForward size={16} />
+                  </button>
+                  <div className="w-px bg-slate-700 mx-1 shrink-0"></div>
+                  <button 
+                    onClick={lr.runFullIteration} 
+                    className="px-3 py-2 flex items-center gap-2 text-sm font-medium rounded-md hover:bg-emerald-500/20 text-emerald-400 transition-colors"
+                  >
+                    <Play size={16} /> Iteración
+                  </button>
+                  <button 
+                    onClick={lr.reset} 
+                    className="px-3 py-2 flex items-center gap-2 text-sm font-medium rounded-md hover:bg-rose-500/20 text-rose-400 transition-colors"
+                  >
+                    <RotateCcw size={16} /> Reset
+                  </button>
+                </div>
+              </header>
+
+              {/* Chart Area */}
+              <div className="flex-1 flex flex-col min-h-[400px]">
+                <MainChart data={lr.data} m={lr.m} b={lr.b} />
+              </div>
+            </main>
+
+            <MathPanel 
+              step={lr.currentStep} 
+              data={lr.data} 
+              m={lr.m} 
+              b={lr.b} 
+              learningRate={lr.learningRate} 
+              calculations={lr.calculations} 
+            />
+          </>
+        ) : (
+          <TheoryPage />
+        )}
+      </div>
+
+      <Chatbot 
+        iteration={lr.iteration}
+        step={lr.currentStep}
+        m={lr.m}
+        b={lr.b}
+        learningRate={lr.learningRate}
+        mse={lr.calculations?.mse || 0}
+        data={lr.data}
+      />
+    </div>
+  );
+}
+
+export default App;
