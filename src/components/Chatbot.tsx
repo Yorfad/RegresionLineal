@@ -14,6 +14,7 @@ interface Message {
 }
 
 interface ChatbotProps {
+  activeTab: 'simulator' | 'theory' | 'massive';
   iteration: number;
   step: Step;
   m: number | string;
@@ -21,9 +22,30 @@ interface ChatbotProps {
   learningRate: number | string;
   mse: number;
   data: DataPoint[];
+  massiveState?: {
+    datasetType: 'seattle' | 'co2' | 'salaries' | 'synthetic' | 'custom';
+    iteration: number;
+    mOrig: number;
+    bOrig: number;
+    learningRate: number;
+    mse: number;
+    normalize: boolean;
+    isExploded: boolean;
+    dataCount: number;
+  };
 }
 
-export const Chatbot: React.FC<ChatbotProps> = ({ iteration, step, m, b, learningRate, mse, data }) => {
+export const Chatbot: React.FC<ChatbotProps> = ({ 
+  activeTab,
+  iteration, 
+  step, 
+  m, 
+  b, 
+  learningRate, 
+  mse, 
+  data,
+  massiveState
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   // Read API Key from environment variables (hidden from source code)
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -53,23 +75,64 @@ export const Chatbot: React.FC<ChatbotProps> = ({ iteration, step, m, b, learnin
       const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
       // Context-Aware Prompting
-      const systemContext = `
-Eres un tutor experto en Machine Learning y Matemáticas.
-El usuario está utilizando un simulador interactivo de Regresión Lineal Simple entrenado con Descenso por Gradiente.
-Estado actual de la simulación del usuario:
+      let activeTabName = "";
+      let statusDetails = "";
+
+      if (activeTab === 'simulator') {
+        activeTabName = "Simulador Paso a Paso";
+        statusDetails = `
 - Iteración actual: ${iteration}
 - Paso actual dentro de la iteración: ${StepName[step]}
 - Pendiente actual (m): ${Number(m).toFixed(4)}
 - Intercepto actual (b): ${Number(b).toFixed(4)}
-- Learning Rate: ${learningRate}
-- Error Total (MSE): ${mse ? mse.toFixed(4) : 'N/A'}
-- Datos del usuario (x, y): ${JSON.stringify(data)}
+- Tasa de aprendizaje (learning rate): ${learningRate}
+- Error actual (MSE): ${mse ? mse.toFixed(4) : 'N/A'}
+- Puntos de datos activos en pantalla (x, y): ${JSON.stringify(data)}
+`;
+      } else if (activeTab === 'theory') {
+        activeTabName = "Teoría y Casos Reales del Teorema";
+        statusDetails = `
+El usuario está leyendo la teoría de regresión lineal simple y tres casos reales solucionados con regresión lineal en el mundo real.
+Ayúdale a comprender el teorema y cómo aplicarlo a problemas reales de su propia universidad o profesión.
+`;
+      } else if (activeTab === 'massive' && massiveState) {
+        activeTabName = "Simulador a Gran Escala (Miles de Datos)";
+        statusDetails = `
+Métricas actuales del simulador masivo:
+- Dataset activo: ${massiveState.datasetType}
+- Número de puntos de datos: ${massiveState.dataCount}
+- Época/Iteración de entrenamiento actual: ${massiveState.iteration}
+- Pendiente actual (m): ${massiveState.isExploded ? 'NaN' : massiveState.mOrig.toFixed(4)}
+- Intercepto actual (b): ${massiveState.isExploded ? 'NaN' : massiveState.bOrig.toFixed(2)}
+- Tasa de aprendizaje (α): ${massiveState.learningRate}
+- Error Cuadrático Medio (MSE) actual: ${massiveState.mse === Infinity ? 'Infinity' : massiveState.mse.toFixed(4)}
+- Normalización Min-Max activa: ${massiveState.normalize ? 'Sí' : 'No'}
+- ¿El gradiente ha explotado?: ${massiveState.isExploded ? 'Sí (Valores se volvieron NaN o Infinity por inestabilidad numérica)' : 'No'}
+
+Temas clave de esta pestaña:
+1. Procesamiento masivo de datos: Diferencia entre CPU, GPU (cómputo paralelo) y TPU.
+2. Derivación automática (Autograd) y Backpropagation usando frameworks modernos (PyTorch, TensorFlow).
+3. Explosión del gradiente (Exploding Gradient): Por qué ocurre al desactivar la normalización y mantener una tasa de aprendizaje alta como 0.1 en coordenadas de escala real.
+4. Normalización de características (Feature Scaling): Cómo mapear variables a [0, 1] previene el desbordamiento numérico.
+5. El tamaño de lote (Batch) y costo computacional O(N).
+
+Si el gradiente ha explotado en su simulación actual, indícale de manera amigable que desactive el entrenamiento, active la normalización y reinicie el simulador, o que reduzca drásticamente la tasa de aprendizaje (a un valor como 0.00005) para ver cómo converge lentamente sin normalizar.
+`;
+      }
+
+      const systemContext = `
+Eres un tutor experto en Machine Learning y Matemáticas.
+El usuario está utilizando un simulador interactivo de Regresión Lineal Simple.
+Actualmente se encuentra en la pestaña: **${activeTabName}**.
+
+Detalles de estado y contexto actual:
+${statusDetails}
 
 Reglas de respuesta:
-1. Responde de forma pedagógica, concisa y amigable.
-2. Si es relevante, usa los valores actuales de la simulación (m, b, iteración, datos) para explicar o dar ejemplos.
-3. El usuario NO es un experto, explícale de forma que entienda.
-4. MUY IMPORTANTE: Para renderizar matemáticas, usa formato LaTeX en Markdown. Envuelve las fórmulas inline con el símbolo de dolar (ejemplo: $y = mx + b$) y los bloques matemáticos con doble dolar.
+1. Responde en español de forma pedagógica, clara y amigable.
+2. Si es relevante, utiliza los valores numéricos actuales de la pantalla (m, b, iteración, datos) para ilustrar tus explicaciones y cálculos.
+3. Adapta tu explicación al nivel de un estudiante universitario, explicando con intuición y rigor matemático equilibrado.
+4. Para renderizar fórmulas matemáticas, utiliza estrictamente formato LaTeX en Markdown. Envuelve las fórmulas en línea con el símbolo de un solo dólar (ejemplo: $y = mx + b$) y los bloques matemáticos destacados con doble dólar (ejemplo: $$MSE = \\frac{1}{N} \\sum (\\hat{y}_i - y_i)^2$$).
       `;
 
       const prompt = systemContext + "\n\nPregunta del usuario: " + userMessage;

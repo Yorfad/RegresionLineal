@@ -11,6 +11,17 @@ import { Play, SkipForward, SkipBack, RotateCcw, BookOpen, Activity, Cpu } from 
 function App() {
   const lr = useLinearRegression();
   const [activeTab, setActiveTab] = useState<'simulator' | 'theory' | 'massive'>('simulator');
+  const [massiveState, setMassiveState] = useState({
+    datasetType: 'seattle' as 'seattle' | 'co2' | 'salaries' | 'synthetic' | 'custom',
+    iteration: 0,
+    mOrig: 0,
+    bOrig: 0,
+    learningRate: 0.1,
+    mse: 0,
+    normalize: true,
+    isExploded: false,
+    dataCount: 2000
+  });
 
   return (
     <div className="h-screen w-full bg-slate-950 text-slate-100 flex flex-col overflow-hidden font-sans relative">
@@ -123,11 +134,12 @@ function App() {
         ) : activeTab === 'theory' ? (
           <TheoryPage />
         ) : (
-          <LargeScaleSimulator />
+          <LargeScaleSimulator onStateChange={setMassiveState} />
         )}
       </div>
 
       <Chatbot 
+        activeTab={activeTab}
         iteration={lr.iteration}
         step={lr.currentStep}
         m={lr.m}
@@ -135,6 +147,7 @@ function App() {
         learningRate={lr.learningRate}
         mse={lr.calculations?.mse || 0}
         data={lr.data}
+        massiveState={massiveState}
       />
     </div>
   );

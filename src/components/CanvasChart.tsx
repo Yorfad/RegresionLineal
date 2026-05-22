@@ -34,11 +34,17 @@ export const CanvasChart: React.FC<CanvasChartProps> = ({ data, m, b, xLabel, yL
     // Add padding to bounds
     const dx = maxX - minX || 1;
     const dy = maxY - minY || 1;
+    const padFactor = 0.1;
+    
+    // If data values are strictly positive, clamp bounds to 0, otherwise allow negative values
+    const minXBound = minX >= 0 ? Math.max(0, minX - dx * padFactor) : minX - dx * padFactor;
+    const minYBound = minY >= 0 ? Math.max(0, minY - dy * padFactor) : minY - dy * padFactor;
+
     return {
-      minX: Math.max(0, minX - dx * 0.1),
-      maxX: maxX + dx * 0.1,
-      minY: Math.max(0, minY - dy * 0.1),
-      maxY: maxY + dy * 0.1,
+      minX: minXBound,
+      maxX: maxX + dx * padFactor,
+      minY: minYBound,
+      maxY: maxY + dy * padFactor,
     };
   }, [data]);
 

@@ -11,12 +11,14 @@ interface DataPoint {
   y: number;
 }
 
-// Deterministic random number generator with seed
+// Seeded PRNG using Mulberry32 algorithm (32-bit state, no 2D correlations)
 const createRandomGenerator = (seed: number) => {
   let s = seed;
   return () => {
-    const x = Math.sin(s++) * 10000;
-    return x - Math.floor(x);
+    let z = (s = (s + 0x9e3779b9) | 0);
+    z = Math.imul(z ^ (z >>> 16), 2246822507);
+    z = Math.imul(z ^ (z >>> 13), 3266489909);
+    return ((z ^ (z >>> 16)) >>> 0) / 4294967296;
   };
 };
 
@@ -88,7 +90,21 @@ En proyectos de IA reales, las redes neuronales tienen miles de capas interconec
 A medida que la computadora realiza las predicciones de forma "hacia adelante" (Forward Pass), el framework construye un grafo computacional dinámico. Luego, al calcular el error, realiza una propagación hacia atrás (**Backpropagation**) aplicando la regla de la cadena para obtener automáticamente los gradientes de todos los parámetros del modelo, sin importar qué tan complejas sean las fórmulas.
 `;
 
-export const LargeScaleSimulator: React.FC = () => {
+interface LargeScaleSimulatorProps {
+  onStateChange?: (state: {
+    datasetType: 'seattle' | 'co2' | 'salaries' | 'synthetic' | 'custom';
+    iteration: number;
+    mOrig: number;
+    bOrig: number;
+    learningRate: number;
+    mse: number;
+    normalize: boolean;
+    isExploded: boolean;
+    dataCount: number;
+  }) => void;
+}
+
+export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStateChange }) => {
   const [datasetType, setDatasetType] = useState<'seattle' | 'co2' | 'salaries' | 'synthetic' | 'custom'>('seattle');
   
   // Custom synthetic data config
@@ -96,6 +112,7 @@ export const LargeScaleSimulator: React.FC = () => {
   const [trueM, setTrueM] = useState<number>(3.5);
   const [trueB, setTrueB] = useState<number>(20);
   const [noiseLevel, setNoiseLevel] = useState<number>(15);
+  const [showInteractiveTutorial, setShowInteractiveTutorial] = useState<boolean>(false);
 
   // Custom pasted CSV data config
   const [csvText, setCsvText] = useState<string>(
@@ -281,6 +298,23 @@ export const LargeScaleSimulator: React.FC = () => {
     const currentMse = errorSumSq / data.length;
     setMse(currentMse);
   }, [data, mNorm, bNorm, normalize, dataStats]);
+
+  // Synchronize state with parent component (for the chatbot)
+  useEffect(() => {
+    if (onStateChange) {
+      onStateChange({
+        datasetType,
+        iteration,
+        mOrig,
+        bOrig,
+        learningRate,
+        mse,
+        normalize,
+        isExploded,
+        dataCount: data.length
+      });
+    }
+  }, [datasetType, iteration, mOrig, bOrig, learningRate, mse, normalize, isExploded, data.length, onStateChange]);
 
   // Reset training state
   const resetModel = () => {
@@ -613,6 +647,103 @@ export const LargeScaleSimulator: React.FC = () => {
     ctx.stroke();
   }, [history]);
 
+  const getInteractiveMathExplanation = () => {
+    const N = data.length;
+    const mStr = isExploded ? 'NaN' : mOrig.toFixed(4);
+    const bStr = isExploded ? 'NaN' : bOrig.toFixed(2);
+    const mseStr = mse === Infinity ? 'Infinity' : mse.toLocaleString(undefined, { maximumFractionDigits: 4 });
+    const lrStr = learningRate.toString();
+    const normalizeStatus = normalize 
+      ? "**Activa** (Valores escalados a $[0, 1]$)" 
+      : "**Desactivada** (Valores en escala original)";
+
+    let datasetName = "";
+    let variableX = "";
+    let variableY = "";
+    if (datasetType === 'seattle') {
+      datasetName = "Casas de Seattle (Real)";
+      variableX = "Tamaño de Casa (pies cuadrados)";
+      variableY = "Precio ($ Mil USD)";
+    } else if (datasetType === 'co2') {
+      datasetName = "Emisiones de CO2 (Real)";
+      variableX = "Cilindrada del Motor (Litros)";
+      variableY = "Emisión de CO2 (g/km)";
+    } else if (datasetType === 'salaries') {
+      datasetName = "Salarios Tech (Real)";
+      variableX = "Años de Experiencia";
+      variableY = "Salario Anual ($ Mil USD)";
+    } else if (datasetType === 'synthetic') {
+      datasetName = "Generador Sintético";
+      variableX = "Variable Independiente (X)";
+      variableY = "Variable Dependiente (Y)";
+    } else {
+      datasetName = "Datos Personalizados";
+      variableX = "X";
+      variableY = "Y";
+    }
+
+    const { minX, maxX, minY, maxY } = dataStats;
+
+    return `
+Esta guía te explica paso a paso cómo se aplican las fórmulas de regresión lineal simple en este momento con tus valores reales del ejercicio **${datasetName}**.
+
+### 1. La Función de Hipótesis (Predicción)
+El modelo intenta predecir la variable dependiente $y$ (${variableY}) a partir de la independiente $x$ (${variableX}) usando la ecuación de una línea recta:
+$$ \\hat{y}_i = m \\cdot x_i + b $$
+
+Sustituyendo tus valores actuales de la pendiente $m = ${mStr}$ y el intercepto $b = ${bStr}$:
+$$ \\hat{y}_i = ${mStr} \\cdot x_i + ${bStr} $$
+
+* **La Pendiente ($m = ${mStr}$)**: Indica que por cada incremento unitario en $x$, la predicción de $y$ cambia en $${mStr}$ unidades.
+* **El Intercepto ($b = ${bStr}$)**: Es el valor de partida o base cuando $x = 0$.
+
+---
+
+### 2. Medir el Error: Función de Costo (MSE)
+Para evaluar qué tan buena es la línea, calculamos el **Error Cuadrático Medio (MSE)** sobre los $N = ${N.toLocaleString()}$ puntos:
+$$ MSE = \\frac{1}{N} \\sum_{i=1}^{N} (\\hat{y}_i - y_i)^2 $$
+
+Sustituyendo tus datos reales:
+$$ MSE = \\frac{1}{${N.toLocaleString()}} \\sum_{i=1}^{${N.toLocaleString()}} (${mStr} \\cdot x_i + ${bStr} - y_i)^2 = ${mseStr} $$
+
+* **¿Cómo funciona?** El simulador toma los $e_i = \\hat{y}_i - y_i$ (la distancia vertical entre la línea y cada uno de tus **${N.toLocaleString()} puntos**), los eleva al cuadrado y calcula su promedio. Actualmente, el valor promedio de este error al cuadrado es **${mseStr}**.
+
+---
+
+### 3. El Algoritmo de Aprendizaje: Descenso de Gradiente
+Para encontrar los mejores valores de $m$ y $b$, calculamos las derivadas de la función de costo respecto a cada parámetro (los **gradientes**) y damos pasos en la dirección opuesta al gradiente usando la tasa de aprendizaje $\\alpha = ${lrStr}$:
+
+$$ m \\leftarrow m - \\alpha \\cdot \\frac{\\partial J}{\\partial m} $$
+$$ b \\leftarrow b - \\alpha \\cdot \\frac{\\partial J}{\\partial b} $$
+
+Sustituyendo tus valores reales:
+$$ m \\leftarrow m - ${lrStr} \\cdot \\left[ \\frac{2}{${N.toLocaleString()}} \\sum_{i=1}^{${N.toLocaleString()}} (\\hat{y}_i - y_i)x_i \\right] $$
+$$ b \\leftarrow b - ${lrStr} \\cdot \\left[ \\frac{2}{${N.toLocaleString()}} \\sum_{i=1}^{${N.toLocaleString()}} (\\hat{y}_i - y_i) \\right] $$
+
+* **La Tasa de Aprendizaje ($\\alpha = ${lrStr}$)**: Controla el tamaño de cada paso de actualización. Si $\\alpha$ es demasiado pequeña, el modelo tardará miles de épocas en aprender. Si es muy grande, dará pasos de gigante y no logrará converger.
+
+---
+
+### 4. El Rol Crítico de la Normalización (Feature Scaling)
+Actualmente, la normalización está **${normalizeStatus}**.
+* **El rango de tus datos crudos es**:
+  - $x \\in [${minX.toLocaleString()}, ${maxX.toLocaleString()}]$ (Rango: $${dataStats.rangeX.toLocaleString()}$)
+  - $y \\in [${minY.toLocaleString()}, ${maxY.toLocaleString()}]$ (Rango: $${dataStats.rangeY.toLocaleString()}$)
+
+* **¿Qué sucede matemáticamente aquí?**
+  ${normalize 
+    ? `Dado que la normalización está **Activa**, el simulador escala los valores a $x' = \\frac{x - ${minX.toLocaleString()}}{${dataStats.rangeX.toLocaleString()}}$ e $y' = \\frac{y - ${minY.toLocaleString()}}{${dataStats.rangeY.toLocaleString()}}$, dejando ambos en el rango $[0, 1]$.
+    
+    El gradiente respecto a $m$ se calcula sobre $x' \\le 1$. La multiplicación de los errores por valores de $x'$ pequeños resulta en un gradiente estable y controlado. Esto permite que una tasa de aprendizaje alta como $\\alpha = ${lrStr}$ funcione perfectamente y converja rápidamente sin desbordar el sistema.` 
+    : `Dado que la normalización está **Desactivada**, el gradiente respecto a $m$ multiplica los errores directamente por tus coordenadas originales de $x$ (¡que llegan hasta $x = ${maxX.toLocaleString()}$!).
+    
+    Al calcular el término de la sumatoria $\\sum (\\hat{y}_i - y_i) x_i$, el valor del gradiente resultante es astronómico. Multiplicar este gradiente por una tasa de aprendizaje como $\\alpha = ${lrStr}$ da un paso de actualización tan masivo que $m$ se dispara alternando de signo y creciendo exponencialmente hasta superar el límite del procesador, resultando en un colapso con valores **Infinity** o **NaN** y forzando la línea a quedar perpendicular.
+    
+    **Para evitar esto sin normalizar, debes reducir tu Learning Rate a $\\alpha \\le 0.00005$.**`
+  }
+`;
+  };
+
   return (
     <div className="w-full h-full overflow-y-auto bg-slate-950 p-6 md:p-12 custom-scrollbar">
       <div className="max-w-7xl mx-auto flex flex-col gap-8">
@@ -749,6 +880,19 @@ export const LargeScaleSimulator: React.FC = () => {
                   >
                     Generar Datos
                   </button>
+
+                  {/* Guía Educativa del Generador Sintético */}
+                  <div className="mt-2 p-3 bg-blue-950/20 border border-blue-900/40 rounded-lg text-slate-400">
+                    <div className="flex items-center gap-1.5 text-blue-400 font-semibold mb-1 text-[11px]">
+                      <HelpCircle size={12} /> GUÍA DE USO Y PARÁMETROS
+                    </div>
+                    <ul className="list-disc pl-3.5 space-y-1 text-[10px] leading-relaxed">
+                      <li>Genera una ecuación lineal teórica: <code className="text-emerald-400">y = m·x + b + ruido</code>.</li>
+                      <li><strong>Valores recomendados:</strong> Pendiente <code className="text-slate-300">m (1.0 a 5.0)</code>, Intercepto <code className="text-slate-300">b (10 a 100)</code>, Ruido <code className="text-slate-300">(5 a 25)</code>.</li>
+                      <li><strong>¿Explosión del Gradiente?</strong> Sin normalización (escala real), multiplicar por coordenadas grandes (hasta 100) produce gradientes gigantes. Con <code className="text-blue-400">α = 0.1</code> y normalización apagada, el modelo se dispara instantáneamente a <code className="text-rose-400">Infinity/NaN</code> (línea vertical y colapso).</li>
+                      <li><strong>Solución:</strong> Mantén la <code className="text-emerald-400">Normalización Activa</code> para usar <code className="text-blue-400">α = 0.1</code>, o reduce el learning rate a <code className="text-amber-500">α ≤ 0.00005</code> si la desactivas.</li>
+                    </ul>
+                  </div>
                 </div>
               )}
 
@@ -1013,17 +1157,36 @@ export const LargeScaleSimulator: React.FC = () => {
 
         </div>
 
-        {/* Education theory section */}
-        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-8 md:p-12 shadow-2xl mt-4
-          prose prose-invert prose-emerald max-w-none 
-          prose-h2:text-2xl prose-h2:font-extrabold prose-h2:bg-gradient-to-r prose-h2:from-blue-400 prose-h2:to-emerald-400 prose-h2:bg-clip-text prose-h2:text-transparent prose-h2:border-b prose-h2:border-slate-800 prose-h2:pb-3 prose-h2:mt-10
-          prose-h3:text-lg prose-h3:text-blue-400 prose-h3:mt-8
-          prose-p:text-slate-300 prose-p:leading-relaxed prose-p:text-sm md:prose-p:text-base
-          prose-strong:text-slate-200
-          prose-li:text-slate-300 prose-li:text-sm md:prose-li:text-base">
-          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-            {computationTheory}
-          </ReactMarkdown>
+        {/* Education theory section with interactive toggle */}
+        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl mt-4">
+          <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-6">
+            <h2 className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+              {showInteractiveTutorial ? "🧮 Guía Matemática Dinámica del Ejercicio" : "🧠 La Computación Moderna y la IA en la Regresión Lineal"}
+            </h2>
+            <button
+              onClick={() => setShowInteractiveTutorial(prev => !prev)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
+                showInteractiveTutorial
+                  ? 'bg-blue-600/10 border-blue-500/50 text-blue-400 font-semibold'
+                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+              }`}
+              title={showInteractiveTutorial ? "Ver teoría general de computación" : "Ver explicación paso a paso de tu ejercicio"}
+            >
+              <HelpCircle size={16} />
+              {showInteractiveTutorial ? "Ver Teoría de Cómputo" : "Explicación Interactiva (?)"}
+            </button>
+          </div>
+
+          <div className="prose prose-invert prose-emerald max-w-none 
+            prose-h3:text-lg prose-h3:text-blue-400 prose-h3:mt-8 prose-h3:mb-2
+            prose-p:text-slate-300 prose-p:leading-relaxed prose-p:text-sm md:prose-p:text-base prose-p:my-3
+            prose-strong:text-slate-200
+            prose-li:text-slate-300 prose-li:text-sm md:prose-li:text-base
+            prose-code:text-emerald-400 prose-code:bg-slate-950 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {showInteractiveTutorial ? getInteractiveMathExplanation() : computationTheory}
+            </ReactMarkdown>
+          </div>
         </section>
 
       </div>
