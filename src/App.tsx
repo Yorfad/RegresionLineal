@@ -5,11 +5,12 @@ import { MainChart } from './components/MainChart';
 import { MathPanel } from './components/MathPanel';
 import { Chatbot } from './components/Chatbot';
 import { TheoryPage } from './pages/TheoryPage';
-import { Play, SkipForward, SkipBack, RotateCcw, BookOpen, Activity } from 'lucide-react';
+import { LargeScaleSimulator } from './pages/LargeScaleSimulator';
+import { Play, SkipForward, SkipBack, RotateCcw, BookOpen, Activity, Cpu } from 'lucide-react';
 
 function App() {
   const lr = useLinearRegression();
-  const [activeTab, setActiveTab] = useState<'simulator' | 'theory'>('simulator');
+  const [activeTab, setActiveTab] = useState<'simulator' | 'theory' | 'massive'>('simulator');
 
   return (
     <div className="h-screen w-full bg-slate-950 text-slate-100 flex flex-col overflow-hidden font-sans relative">
@@ -23,18 +24,24 @@ function App() {
             Simulador de Regresión Lineal
           </h1>
         </div>
-        <div className="flex gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
+        <div className="flex gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800 overflow-x-auto max-w-full">
           <button 
             onClick={() => setActiveTab('simulator')}
-            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all ${activeTab === 'simulator' ? 'bg-slate-800 text-blue-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'simulator' ? 'bg-slate-800 text-blue-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <Activity size={18} /> Simulador
           </button>
           <button 
             onClick={() => setActiveTab('theory')}
-            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all ${activeTab === 'theory' ? 'bg-slate-800 text-emerald-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'theory' ? 'bg-slate-800 text-emerald-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <BookOpen size={18} /> Teoría y Casos Reales
+          </button>
+          <button 
+            onClick={() => setActiveTab('massive')}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'massive' ? 'bg-slate-800 text-indigo-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+          >
+            <Cpu size={18} /> Gran Escala (Miles de Datos)
           </button>
         </div>
       </nav>
@@ -113,8 +120,10 @@ function App() {
               calculations={lr.calculations} 
             />
           </>
-        ) : (
+        ) : activeTab === 'theory' ? (
           <TheoryPage />
+        ) : (
+          <LargeScaleSimulator />
         )}
       </div>
 
