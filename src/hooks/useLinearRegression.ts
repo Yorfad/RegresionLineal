@@ -122,6 +122,53 @@ export function useLinearRegression() {
     }
   };
 
+  const runMultipleIterations = (epochsCount: number) => {
+    let localM = Number(m) || 0;
+    let localB = Number(b) || 0;
+    const lrNum = Number(learningRate) || 0.01;
+    const n = data.length;
+    if (n === 0) return;
+
+    let localIteration = iteration;
+    const tempHistory = [...history];
+
+    for (let step = 0; step < epochsCount; step++) {
+      let gradM = 0;
+      let gradB = 0;
+      let errorSumSq = 0;
+
+      for (let i = 0; i < n; i++) {
+        const xVal = Number(data[i].x);
+        const yVal = Number(data[i].y);
+        const pred = localM * xVal + localB;
+        const error = pred - yVal;
+        gradM += error * xVal;
+        gradB += error;
+        errorSumSq += error * error;
+      }
+
+      gradM = (2 / n) * gradM;
+      gradB = (2 / n) * gradB;
+
+      tempHistory.push({
+        iteration: localIteration,
+        m: localM,
+        b: localB,
+        mse: errorSumSq / n
+      });
+
+      localM = localM - lrNum * gradM;
+      localB = localB - lrNum * gradB;
+      localIteration++;
+    }
+
+    setM(localM);
+    setB(localB);
+    setIteration(localIteration);
+    setHistory(tempHistory);
+    setCurrentStep(Step.PREDICTIONS);
+  };
+
   const reset = () => {
     setData(DEFAULT_DATA);
     setM(0);
@@ -148,6 +195,7 @@ export function useLinearRegression() {
     nextStep,
     prevStep,
     runFullIteration,
+    runMultipleIterations,
     reset
   };
 }

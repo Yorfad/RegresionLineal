@@ -80,6 +80,21 @@ Tenemos los datos de 3 estudiantes:
    $$ b = 0 - (0.01 \\cdot -8.00) = \\mathbf{0.08} $$
 
 ¡Felicidades! Acabas de dar el primer paso de entrenamiento a mano.
+
+### 📈 Evolución y Resolución Completa del Problema
+
+Si repetimos este proceso (Paso 2 al Paso 5) en un bucle durante cientos de iteraciones, veremos cómo cambian los parámetros progresivamente:
+
+*   **Iteración 1:** $m = 0.1867$, $b = 0.08$ (Costo MSE disminuye de $18.67$ a $14.15$).
+*   **Iteración 10:** $m = 1.0543$, $b = 0.44$ (Costo MSE disminuye a $2.15$).
+*   **Iteración 100:** $m = 1.8752$, $b = 0.28$ (Costo MSE disminuye a $0.03$).
+*   **Iteración 1000 (Convergencia):** El modelo llega al mínimo global con **$m \\approx 2.000$** y **$b \\approx 0.000$**, con un costo **$MSE \\approx 0.000$**.
+
+#### La Solución Final:
+La ecuación de predicción entrenada es:
+$$ \\hat{y} = 2.00 \\cdot x + 0.00 $$
+
+Es decir, el algoritmo ha aprendido matemáticamente la regla perfecta: **la calificación del examen es exactamente el doble de las horas estudiadas** ($\\hat{y} = 2x$). Si un nuevo estudiante estudia **4.5 horas**, el modelo predecirá con total confianza una calificación de **9.0**.
 `;
 
 // theoryContentBottom refactored to JSX components below.
@@ -184,14 +199,67 @@ export const TheoryPage: React.FC = () => {
                      />
                   </div>
 
-                  <div className="flex gap-2">
-                    <button onClick={lr.prevStep} disabled={lr.currentStep === 0 && lr.iteration === 1} className="p-2 bg-slate-800 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-50 transition-colors">
+                  <div className="flex flex-wrap gap-2">
+                    <button 
+                      onClick={lr.prevStep} 
+                      disabled={lr.currentStep === 0 && lr.iteration === 1} 
+                      className="p-2 bg-slate-800 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-50 transition-colors"
+                      title="Paso Anterior"
+                    >
                       <SkipBack size={18} />
                     </button>
-                    <button onClick={lr.nextStep} className={`flex items-center gap-2 px-4 py-2 rounded font-medium text-white shadow-lg transition-all ${tutorialStep === 2 ? 'bg-emerald-600 hover:bg-emerald-500 shadow-[0_0_15px_rgba(5,150,105,0.6)] animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>
-                       Siguiente <SkipForward size={18} />
+                    
+                    <button 
+                      onClick={lr.nextStep} 
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded font-medium text-sm text-white shadow-lg transition-all ${tutorialStep === 2 ? 'bg-emerald-600 hover:bg-emerald-500 shadow-[0_0_15px_rgba(5,150,105,0.6)] animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}
+                    >
+                       Siguiente Paso <SkipForward size={14} />
                     </button>
-                    <button onClick={() => { lr.reset(); setTutorialStep(0); }} className="p-2 bg-slate-800 rounded hover:bg-rose-500/20 text-rose-400 ml-2 transition-colors">
+
+                    <button 
+                      onClick={() => {
+                        lr.runMultipleIterations(1);
+                        setTutorialStep(3);
+                      }}
+                      className="px-3 py-2 bg-slate-850 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-sm rounded transition-colors"
+                    >
+                      1 Época
+                    </button>
+
+                    <button 
+                      onClick={() => {
+                        lr.runMultipleIterations(50);
+                        setTutorialStep(3);
+                      }}
+                      className="px-3 py-2 bg-slate-850 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-sm rounded transition-colors"
+                    >
+                      50 Épocas
+                    </button>
+
+                    <button 
+                      onClick={() => {
+                        lr.runMultipleIterations(500);
+                        setTutorialStep(3);
+                      }}
+                      className="px-3 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-900/50 font-semibold text-sm rounded transition-colors animate-pulse"
+                    >
+                      ⚡ Resolver
+                    </button>
+
+                    <button 
+                      onClick={() => {
+                        lr.reset();
+                        lr.setData([
+                          { x: 1, y: 2 },
+                          { x: 2, y: 4 },
+                          { x: 3, y: 6 }
+                        ]);
+                        lr.setLearningRate(0.01);
+                        setTutorialStep(2);
+                      }} 
+                      className="p-2 bg-slate-800 hover:bg-rose-500/20 text-rose-400 ml-2 rounded transition-colors"
+                      title="Reiniciar a m=0, b=0"
+                    >
                       <RotateCcw size={18} />
                     </button>
                   </div>
@@ -248,7 +316,7 @@ export const TheoryPage: React.FC = () => {
                   <p className="text-blue-400 font-medium">Edwin Hubble (1929) - Ley de Hubble</p>
                 </div>
               </div>
-              <p className="text-slate-300 mb-6">Hubble aplicó regresión lineal para demostrar que el universo se expande. Relacionó la distancia de las galaxias con la velocidad a la que se alejan.</p>
+              <p className="text-slate-300 mb-6">Edwin Hubble (1929) midió la distancia de galaxias lejanas en Megapársecs (Mpc) y su velocidad de recesión en km/s. Su regresión demostró que el universo se expande de forma uniforme. Carga los datos históricos reales de su publicación original (Mpc vs km/s).</p>
               
               <div className="bg-slate-950 rounded-lg p-5 mb-6 border border-slate-800 text-sm text-slate-400">
                 <strong className="text-white block mb-2">Los 5 Pasos en acción:</strong>
@@ -262,7 +330,7 @@ export const TheoryPage: React.FC = () => {
               </div>
 
               <button 
-                onClick={() => loadCase([{x: 1, y: 1.9}, {x: 2, y: 4.1}, {x: 3, y: 5.8}, {x: 4, y: 8.2}], 0.01)}
+                onClick={() => loadCase([{x: 0.03, y: 170}, {x: 0.27, y: 290}, {x: 0.45, y: 200}, {x: 0.9, y: 290}, {x: 1.4, y: 500}, {x: 2.0, y: 1090}], 0.01)}
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
                 <Play size={18} /> Cargar Caso Hubble en el Simulador
@@ -278,7 +346,7 @@ export const TheoryPage: React.FC = () => {
                   <p className="text-emerald-400 font-medium">Sir Francis Galton - Biología Evolutiva</p>
                 </div>
               </div>
-              <p className="text-slate-300 mb-6">Galton trazó una línea para relacionar la altura de padres altos con la de sus hijos. Notó que los hijos "regresaban" hacia el promedio, bautizando al algoritmo para siempre.</p>
+              <p className="text-slate-300 mb-6">Sir Francis Galton relacionó la estatura media de los padres con la de sus hijos en pulgadas. Demostró que los hijos de padres muy altos tienden a ser más bajos que sus padres, "regresando" hacia la media general. Carga la escala histórica real (pulgadas de estatura).</p>
               
               <div className="bg-slate-950 rounded-lg p-5 mb-6 border border-slate-800 text-sm text-slate-400">
                 <strong className="text-white block mb-2">Los 5 Pasos en acción:</strong>
@@ -292,10 +360,10 @@ export const TheoryPage: React.FC = () => {
               </div>
 
               <button 
-                onClick={() => loadCase([{x: 16, y: 16.5}, {x: 17, y: 17.2}, {x: 18, y: 17.8}, {x: 19, y: 18.5}], 0.001)}
+                onClick={() => loadCase([{x: 64, y: 66}, {x: 66, y: 67.2}, {x: 68, y: 68.2}, {x: 70, y: 69.2}, {x: 72, y: 70.2}], 0.0001)}
                 className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
-                <Play size={18} /> Cargar Caso Galton en el Simulador (LR: 0.001)
+                <Play size={18} /> Cargar Caso Galton en el Simulador (LR: 0.0001)
               </button>
             </div>
 
@@ -308,7 +376,7 @@ export const TheoryPage: React.FC = () => {
                   <p className="text-purple-400 font-medium">Wall Street - Finanzas Cuantitativas</p>
                 </div>
               </div>
-              <p className="text-slate-300 mb-6">Usado por todo banco de inversión. Mide el riesgo de una acción comparada con el mercado. A la pendiente $m$ se le llama "Beta" (riesgo relativo) y al intercepto $b$, "Alpha".</p>
+              <p className="text-slate-300 mb-6">Mide el riesgo sistémico de una acción comparado con el rendimiento del mercado (S&P 500). La pendiente $m$ (Beta) representa la volatilidad de la acción respecto al mercado. Carga retornos mensuales realistas con fluctuaciones en Wall Street.</p>
               
               <div className="bg-slate-950 rounded-lg p-5 mb-6 border border-slate-800 text-sm text-slate-400">
                 <strong className="text-white block mb-2">Los 5 Pasos en acción:</strong>
@@ -322,7 +390,7 @@ export const TheoryPage: React.FC = () => {
               </div>
 
               <button 
-                onClick={() => loadCase([{x: 1, y: 1.2}, {x: 2, y: 2.5}, {x: 3, y: 3.1}, {x: 4, y: 4.8}, {x: 5, y: 5.5}], 0.01)}
+                onClick={() => loadCase([{x: -2.0, y: -3.0}, {x: 1.0, y: 1.5}, {x: 3.0, y: 4.5}, {x: -1.0, y: -1.5}, {x: 4.0, y: 6.0}], 0.01)}
                 className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
                 <Play size={18} /> Cargar Caso Wall Street en el Simulador
