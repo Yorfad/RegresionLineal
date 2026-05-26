@@ -88,6 +88,18 @@ export const TheoryPage: React.FC = () => {
   const lr = useLinearRegression();
   const [tutorialStep, setTutorialStep] = useState(0);
 
+  // Preload the exact "hours studied" dataset and learning rate on mount
+  useEffect(() => {
+    lr.reset();
+    lr.setData([
+      { x: 1, y: 2 },
+      { x: 2, y: 4 },
+      { x: 3, y: 6 }
+    ]);
+    lr.setLearningRate(0.01);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (lr.data.length >= 3 && tutorialStep === 0) {
