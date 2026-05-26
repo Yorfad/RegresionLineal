@@ -9,9 +9,21 @@ interface MainChartProps {
 }
 
 export const MainChart: React.FC<MainChartProps> = ({ data, m, b }) => {
+  const validData = data
+    .map(d => ({ x: Number(d.x), y: Number(d.y) }))
+    .filter(d => Number.isFinite(d.x) && Number.isFinite(d.y));
+
+  if (validData.length === 0) {
+    return (
+      <div className="w-full h-full min-h-[400px] bg-slate-800 rounded-xl border border-slate-700 p-4 flex items-center justify-center shadow-lg">
+        <p className="text-slate-400">No hay datos válidos para graficar.</p>
+      </div>
+    );
+  }
+
   // To draw the regression line, we need to span across the data's X range
-  const minX = Math.min(...data.map(d => Number(d.x))) - 1;
-  const maxX = Math.max(...data.map(d => Number(d.x))) + 1;
+  const minX = Math.min(...validData.map(d => d.x)) - 1;
+  const maxX = Math.max(...validData.map(d => d.x)) + 1;
   
   const lineData = [
     { x: minX, y: Number(m) * minX + Number(b) },
@@ -41,7 +53,7 @@ export const MainChart: React.FC<MainChartProps> = ({ data, m, b }) => {
             cursor={{ strokeDasharray: '3 3' }}
             contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#f8fafc' }}
           />
-          <Scatter name="Datos" data={data} fill="#3b82f6" />
+          <Scatter name="Datos" data={validData} fill="#3b82f6" />
           <Line 
             name="Regresión" 
             data={lineData} 

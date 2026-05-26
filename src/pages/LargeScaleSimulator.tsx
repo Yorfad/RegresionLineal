@@ -202,8 +202,31 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
       setLearningRate(0.1);
     } else if (datasetType === 'synthetic') {
       generateSyntheticData();
+    } else if (datasetType === 'custom') {
+      const parsed = parseCsvData(csvText);
+      setData(parsed);
+      setXLabel('Datos Personalizados (X)');
+      setYLabel('Datos Personalizados (Y)');
+      setLearningRate(0.01);
     }
   }, [datasetType]);
+
+  // Helper to parse CSV data without side effects
+  const parseCsvData = (text: string): DataPoint[] => {
+    const lines = text.split('\n');
+    const parsed: DataPoint[] = [];
+    
+    for (let line of lines) {
+      line = line.trim();
+      if (!line || line.startsWith('//') || line.startsWith('#')) continue;
+      
+      const parts = line.split(/[,\t\s]+/).map(p => parseFloat(p.trim()));
+      if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        parsed.push({ x: parts[0], y: parts[1] });
+      }
+    }
+    return parsed;
+  };
 
   // Handle synthetic data generation
   const generateSyntheticData = () => {
@@ -228,19 +251,7 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
     setIsRunning(false);
     resetModel();
     try {
-      const lines = csvText.split('\n');
-      const parsed: DataPoint[] = [];
-      
-      for (let line of lines) {
-        line = line.trim();
-        if (!line || line.startsWith('//') || line.startsWith('#')) continue;
-        
-        // Split by comma, tab or spaces
-        const parts = line.split(/[,\t\s]+/).map(p => parseFloat(p.trim()));
-        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-          parsed.push({ x: parts[0], y: parts[1] });
-        }
-      }
+      const parsed = parseCsvData(csvText);
 
       if (parsed.length < 2) {
         alert('Por favor ingresa al menos 2 puntos de datos válidos con formato: X Y');
@@ -328,55 +339,7 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
     prevTimeRef.current = null;
   };
 
-  // Single step gradient descent logic
-  const stepGradientDescent = (lr: number) => {
-    const n = data.length;
-    if (n === 0 || isExploded) return;
 
-    let gradM = 0;
-    let gradB = 0;
-
-    if (normalize) {
-      // Calculate gradients in normalized space [0, 1]
-      for (let i = 0; i < n; i++) {
-        const x_norm = (data[i].x - dataStats.minX) / dataStats.rangeX;
-        const y_norm = (data[i].y - dataStats.minY) / dataStats.rangeY;
-
-        const pred = mNorm * x_norm + bNorm;
-        const error = pred - y_norm;
-
-        gradM += error * x_norm;
-        gradB += error;
-      }
-
-      gradM = (2 / n) * gradM;
-      gradB = (2 / n) * gradB;
-
-      const nextMNorm = mNorm - lr * gradM;
-      const nextBNorm = bNorm - lr * gradB;
-
-      setMNorm(nextMNorm);
-      setBNorm(nextBNorm);
-    } else {
-      // Calculate gradients in raw original space
-      for (let i = 0; i < n; i++) {
-        const pred = mNorm * data[i].x + bNorm; // mNorm and bNorm are original space here
-        const error = pred - data[i].y;
-
-        gradM += error * data[i].x;
-        gradB += error;
-      }
-
-      gradM = (2 / n) * gradM;
-      gradB = (2 / n) * gradB;
-
-      const nextM = mNorm - lr * gradM;
-      const nextB = bNorm - lr * gradB;
-
-      setMNorm(nextM);
-      setBNorm(nextB);
-    }
-  };
 
   // Execute batch of steps
   const runBatch = (stepsCount: number) => {
@@ -446,7 +409,6 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
 
           gradM += error * data[i].x;
           gradB += error;
-          errorSumSq += error * error;
         }
 
         gradM = (2 / n) * gradM;
@@ -455,7 +417,15 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
         localMNorm = localMNorm - learningRate * gradM;
         localBNorm = localBNorm - learningRate * gradB;
         
-        const currentMse = errorSumSq / n;
+        // Recalculate MSE after update
+        let newErrorSq = 0;
+        for (let i = 0; i < n; i++) {
+          const pred = localMNorm * data[i].x + localBNorm;
+          const diff = pred - data[i].y;
+          newErrorSq += diff * diff;
+        }
+
+        const currentMse = newErrorSq / n;
         currentIt++;
         
         if (currentIt % Math.max(1, Math.round(stepsCount / 10)) === 0 || step === stepsCount - 1) {
@@ -499,7 +469,6 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
     while (delta > 0.000001 && itCount < maxIt && !isExploded) {
       let gradM = 0;
       let gradB = 0;
-      let errorSumSq = 0;
 
       if (normalize) {
         for (let i = 0; i < n; i++) {
@@ -549,7 +518,6 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
           const error = pred - data[i].y;
           gradM += error * data[i].x;
           gradB += error;
-          errorSumSq += error * error;
         }
 
         gradM = (2 / n) * gradM;
@@ -558,7 +526,15 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
         localMNorm = localMNorm - learningRate * gradM;
         localBNorm = localBNorm - learningRate * gradB;
 
-        const newMse = errorSumSq / n;
+        // Recalculate MSE after update
+        let newErrorSq = 0;
+        for (let i = 0; i < n; i++) {
+          const pred = localMNorm * data[i].x + localBNorm;
+          const diff = pred - data[i].y;
+          newErrorSq += diff * diff;
+        }
+
+        const newMse = newErrorSq / n;
         delta = Math.abs(localMse - newMse);
         localMse = newMse;
         currentIt++;
@@ -661,15 +637,15 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
     let variableX = "";
     let variableY = "";
     if (datasetType === 'seattle') {
-      datasetName = "Casas de Seattle (Real)";
+      datasetName = "Casas de Seattle (Simulado Realista)";
       variableX = "Tamaño de Casa (pies cuadrados)";
       variableY = "Precio ($ Mil USD)";
     } else if (datasetType === 'co2') {
-      datasetName = "Emisiones de CO2 (Real)";
+      datasetName = "Emisiones de CO2 (Simulado Realista)";
       variableX = "Cilindrada del Motor (Litros)";
       variableY = "Emisión de CO2 (g/km)";
     } else if (datasetType === 'salaries') {
-      datasetName = "Salarios Tech (Real)";
+      datasetName = "Salarios Tech (Simulado Realista)";
       variableX = "Años de Experiencia";
       variableY = "Salario Anual ($ Mil USD)";
     } else if (datasetType === 'synthetic') {
@@ -758,7 +734,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
               Regresión Lineal a Gran Escala
             </h1>
             <p className="text-slate-400 text-sm md:text-base mt-1">
-              Experimenta con miles de registros reales, observa el fenómeno del gradiente explotando y descubre el rol de la normalización.
+              Experimenta con miles de registros de datos realistas, observa el fenómeno del gradiente explotando y descubre el rol de la normalización.
             </p>
           </div>
           <div className="flex items-center gap-2 self-start md:self-center">
@@ -787,7 +763,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'seattle' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
-                    <div className="text-white font-medium">Casas de Seattle (Real)</div>
+                    <div className="text-white font-medium">Casas de Seattle (Simulado Realista)</div>
                     <div className="text-xs text-slate-500">2,000 casas • Tamaño vs Precio</div>
                   </div>
                   {datasetType === 'seattle' && <Check size={16} />}
@@ -798,7 +774,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'co2' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
-                    <div className="text-white font-medium">Emisiones de CO2 (Real)</div>
+                    <div className="text-white font-medium">Emisiones de CO2 (Simulado Realista)</div>
                     <div className="text-xs text-slate-500">1,500 autos • Motor vs CO2</div>
                   </div>
                   {datasetType === 'co2' && <Check size={16} />}
@@ -809,7 +785,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'salaries' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
-                    <div className="text-white font-medium">Salarios Tech (Real)</div>
+                    <div className="text-white font-medium">Salarios Tech (Simulado Realista)</div>
                     <div className="text-xs text-slate-500">1,200 devs • Años Exp. vs Sueldo</div>
                   </div>
                   {datasetType === 'salaries' && <Check size={16} />}
@@ -1097,11 +1073,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   <button
                     onClick={() => {
                       setIsExploded(false);
-                      const startTime = performance.now();
-                      stepGradientDescent(learningRate);
-                      const duration = performance.now() - startTime;
-                      setIteration(prev => prev + 1);
-                      setElapsedTime(prev => prev + duration);
+                      runBatch(1);
                     }}
                     disabled={isRunning || isExploded}
                     className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-lg transition-colors border border-slate-700 disabled:opacity-50 disabled:hover:bg-slate-800"

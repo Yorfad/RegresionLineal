@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Key, Eye, EyeOff } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -47,11 +47,31 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   massiveState
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  // Read API Key from environment variables (hidden from source code)
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: '¡Hola! Soy tu asistente de Machine Learning. Pregúntame sobre el algoritmo o lo que estás viendo en la simulación.' }
-  ]);
+  const [showSettings, setShowSettings] = useState(false);
+  
+  // Custom API Key from localStorage
+  const [customApiKey, setCustomApiKey] = useState(() => {
+    return localStorage.getItem('gemini_api_key') || '';
+  });
+  const [showKey, setShowKey] = useState(false);
+
+  // Active API key (Vite env var or user custom key)
+  const activeApiKey = customApiKey || import.meta.env.VITE_GEMINI_API_KEY || '';
+
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    const userKey = localStorage.getItem('gemini_api_key') || '';
+    
+    if (!envKey && !userKey) {
+      return [
+        { 
+          role: 'assistant', 
+          content: '¡Hola! Soy tu asistente de ML. ⚠️ **Nota:** No se detectó ninguna API Key de Gemini configurada. Por favor, haz clic en el icono de llave (🔑) en la cabecera del chat e ingresa tu API Key de Google AI Studio (es gratuita) para habilitar el tutor de IA.' 
+        }
+      ];
+    }
+    return [{ role: 'assistant', content: '¡Hola! Soy tu asistente de Machine Learning. Pregúntame sobre el algoritmo o lo que estás viendo en la simulación.' }];
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -71,7 +91,12 @@ export const Chatbot: React.FC<ChatbotProps> = ({
     setIsLoading(true);
 
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
+      if (!activeApiKey) {
+        setMessages(prev => [...prev, { role: 'assistant', content: '❌ **Error:** No se ha configurado ninguna API Key. Haz clic en el icono de llave (🔑) arriba para ingresar una.' }]);
+        setIsLoading(false);
+        return;
+      }
+      const genAI = new GoogleGenerativeAI(activeApiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
 
       // Context-Aware Prompting
@@ -176,7 +201,7 @@ Reglas de respuesta:
         className={`fixed bottom-6 left-6 w-[400px] h-[600px] max-h-[80vh] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-left z-50 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}
       >
         {/* Header */}
-        <div className="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center">
+        <div className="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center select-none">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
               <Bot size={20} />
@@ -186,10 +211,76 @@ Reglas de respuesta:
               <p className="text-xs text-slate-400">Impulsado por Gemini</p>
             </div>
           </div>
-          <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-200 hover:bg-slate-700 p-1 rounded-md transition-colors">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setShowSettings(prev => !prev)} 
+              className={`p-1.5 rounded-md transition-colors ${showSettings ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
+              title="Configurar API Key de Gemini"
+            >
+              <Key size={16} />
+            </button>
+            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-200 hover:bg-slate-700 p-1 rounded-md transition-colors">
+              <X size={20} />
+            </button>
+          </div>
         </div>
+
+        {/* API Key Settings Panel */}
+        {showSettings && (
+          <div className="bg-slate-950 p-4 border-b border-slate-800 text-xs flex flex-col gap-2 relative z-20 select-none">
+            <div className="font-semibold text-slate-300 flex items-center gap-1.5">
+              <Key size={14} className="text-blue-400" /> CONFIGURACIÓN DE GEMINI API
+            </div>
+            <p className="text-slate-400 leading-relaxed text-[11px]">
+              Para usar el chatbot gratis, obtén una llave en <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Google AI Studio</a> y pégala aquí. Tu llave se almacena de forma segura en tu navegador.
+            </p>
+            <div className="bg-amber-950/30 border border-amber-900/50 rounded-lg p-2 text-[10px] text-amber-300 leading-normal">
+              ⚠ <strong>Nota de Seguridad:</strong> Las claves configuradas en archivos <code>.env</code> (con prefijo <code>VITE_</code>) se empaquetan en el frontend de producción y quedan visibles en el navegador. Para despliegues públicos, borra la clave del archivo <code>.env</code> y permite que cada estudiante use su clave aquí, o bien implementa un proxy backend (Frontend → Backend → Gemini).
+            </div>
+            <div className="flex gap-2 mt-1">
+              <div className="relative flex-1">
+                <input
+                  type={showKey ? "text" : "password"}
+                  placeholder={import.meta.env.VITE_GEMINI_API_KEY ? "Usando clave por defecto (.env)" : "Pega tu Gemini API Key..."}
+                  value={customApiKey}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomApiKey(val);
+                    if (val) {
+                      localStorage.setItem('gemini_api_key', val);
+                    } else {
+                      localStorage.removeItem('gemini_api_key');
+                    }
+                  }}
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200 pr-8 focus:outline-none focus:border-blue-500 font-mono text-[10px]"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowKey(prev => !prev)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                >
+                  {showKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              {customApiKey && (
+                <button
+                  onClick={() => {
+                    setCustomApiKey('');
+                    localStorage.removeItem('gemini_api_key');
+                  }}
+                  className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-900/40 px-2 rounded font-semibold transition-colors"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+            {import.meta.env.VITE_GEMINI_API_KEY && !customApiKey && (
+              <div className="text-[9px] text-emerald-400 font-medium bg-emerald-950/20 border border-emerald-900/40 rounded p-1 text-center mt-0.5">
+                ✓ Usando API Key preconfigurada (.env)
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Chat Messages */}
         <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-4">

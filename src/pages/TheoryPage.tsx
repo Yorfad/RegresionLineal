@@ -85,10 +85,10 @@ Tenemos los datos de 3 estudiantes:
 
 Si repetimos este proceso (Paso 2 al Paso 5) en un bucle durante cientos de iteraciones, veremos cómo cambian los parámetros progresivamente:
 
-*   **Iteración 1:** $m = 0.1867$, $b = 0.08$ (Costo MSE disminuye de $18.67$ a $14.15$).
-*   **Iteración 10:** $m = 1.0543$, $b = 0.44$ (Costo MSE disminuye a $2.15$).
-*   **Iteración 100:** $m = 1.8752$, $b = 0.28$ (Costo MSE disminuye a $0.03$).
-*   **Iteración 1000 (Convergencia):** El modelo llega al mínimo global con **$m \\approx 2.000$** y **$b \\approx 0.000$**, con un costo **$MSE \\approx 0.000$**.
+*   **Iteración 1:** $m = 0.1867$, $b = 0.0800$, $MSE = 14.7710$
+*   **Iteración 10:** $m = 1.1663$, $b = 0.4922$, $MSE = 1.8443$
+*   **Iteración 100:** $m = 1.7451$, $b = 0.5795$, $MSE = 0.0482$
+*   **Iteración 1000 (Convergencia):** $m = 1.9708$, $b = 0.0664$, $MSE = 0.00063$
 
 #### La Solución Final:
 La ecuación de predicción entrenada es:
@@ -136,6 +136,55 @@ export const TheoryPage: React.FC = () => {
     lr.setLearningRate(lrValue);
     setTutorialStep(3); // To not trigger tutorial popups
     document.getElementById('simulator-lab')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const getDynamicLaboratoryExplanation = () => {
+    const currentM = Number(lr.m) || 0;
+    const currentB = Number(lr.b) || 0;
+    const currentMse = lr.calculations?.mse || 0;
+    const it = lr.iteration;
+
+    let title = "🚀 Progreso de Entrenamiento";
+    let text = "";
+
+    if (it === 2) {
+      title = "🎉 ¡Primera Iteración Completada!";
+      text = `El simulador ha calculado los gradientes iniciales y ha dado su primer paso de aprendizaje:
+* **Pendiente ($m$):** Cambió de $0.00$ a $${currentM.toFixed(4)}$ (comparado con los $0.1867$ teóricos).
+* **Intercepto ($b$):** Cambió de $0.00$ a $${currentB.toFixed(4)}$ (comparado con los $0.0800$ teóricos).
+* **Error MSE:** Disminuyó de $18.6700$ a $${currentMse.toFixed(4)}$.
+
+¡Compara estos valores con los cálculos manuales explicados en la guía de arriba! Son exactamente iguales.`;
+    } else if (Math.abs(currentM - 2) <= 0.1 && Math.abs(currentB) <= 0.1) {
+      title = "🏆 ¡Modelo Convergido con Éxito!";
+      text = `¡Felicidades! En la **iteración ${it}**, el modelo ha resuelto por completo el caso:
+* **Pendiente ($m$):** $${currentM.toFixed(4)} \\approx 2.00$ (La calificación es exactamente el doble de las horas de estudio).
+* **Intercepto ($b$):** $${currentB.toFixed(4)} \\approx 0.00$ (Si estudias 0 horas, tu predicción de examen es de 0 puntos).
+* **Error MSE:** $${currentMse.toFixed(6)}$ (¡Prácticamente cero!).
+
+La línea de regresión ahora cruza perfectamente por el centro de todos los puntos de datos. El aprendizaje automático ha finalizado.`;
+    } else {
+      title = `⚡ Entrenando el Modelo (Iteración ${it})`;
+      const distM = Math.abs(2.0 - currentM);
+      
+      if (distM > 0.8) {
+        text = `El modelo está dando sus primeros pasos de ajuste en la **iteración ${it}**:
+* **Pendiente actual ($m$):** $${currentM.toFixed(4)}$ (subiendo hacia $2.00$).
+* **Intercepto actual ($b$):** $${currentB.toFixed(4)}$ (ajustándose hacia $0.00$).
+* **Error MSE:** $${currentMse.toFixed(4)}$.
+
+El error está disminuyendo rápidamente. Prueba a hacer clic en **"50 Épocas"** o **"⚡ Resolver"** para acelerar el aprendizaje y ver cómo la línea de predicción se ajusta sobre el dataset.`;
+      } else {
+        text = `¡El modelo está muy cerca de la solución óptima en la **iteración ${it}**!:
+* **Pendiente actual ($m$):** $${currentM.toFixed(4)}$ (objetivo: $2.00$).
+* **Intercepto actual ($b$):** $${currentB.toFixed(4)}$ (objetivo: $0.00$).
+* **Error MSE:** $${currentMse.toFixed(6)}$.
+
+La pendiente se acerca a $2.00$ y el error es mínimo. El descenso de gradiente está refinando el intercepto para pasar exactamente por el origen $(0,0)$.`;
+      }
+    }
+
+    return { title, text };
   };
 
   return (
@@ -188,15 +237,22 @@ export const TheoryPage: React.FC = () => {
                
                {/* Controls */}
                <div className="flex flex-wrap gap-4 items-center justify-between bg-slate-900 p-3 rounded-lg border border-slate-700 shadow-inner">
-                  <div className="flex items-center gap-3">
-                     <label className="text-slate-300 font-medium text-sm">Learning Rate (α):</label>
-                     <input 
-                        type="number" 
-                        step="0.001"
-                        value={lr.learningRate} 
-                        onChange={(e) => lr.setLearningRate(Number(e.target.value))}
-                        className={`w-24 bg-slate-950 border rounded px-2 py-1 text-white focus:outline-none focus:border-blue-500 transition-all ${tutorialStep === 1 ? 'border-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'border-slate-700'}`}
-                     />
+                  <div className="flex items-center gap-3 flex-wrap">
+                     <div className="flex items-center gap-2">
+                        <label className="text-slate-300 font-medium text-sm">Learning Rate (α):</label>
+                        <input 
+                           type="number" 
+                           step="0.001"
+                           value={lr.learningRate} 
+                           onChange={(e) => lr.setLearningRate(Number(e.target.value))}
+                           className={`w-24 bg-slate-950 border rounded px-2 py-1 text-white focus:outline-none focus:border-blue-500 transition-all ${tutorialStep === 1 ? 'border-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'border-slate-700'}`}
+                        />
+                     </div>
+                     
+                     <div className="flex items-center gap-2 bg-slate-950 px-3 py-1 border border-slate-800 rounded-md text-xs font-mono">
+                        <span className="text-slate-500 font-bold">ITERACIÓN ACTUAL:</span>
+                        <span className="text-emerald-400 font-bold text-sm">{lr.iteration}</span>
+                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
@@ -281,17 +337,24 @@ export const TheoryPage: React.FC = () => {
 
              {/* Right side: Math Panel */}
              <div className="w-full xl:w-[450px] border-t xl:border-t-0 xl:border-l border-slate-800 bg-slate-900/50 overflow-y-auto">
-                {tutorialStep === 3 && (
-                   <div className="p-4 bg-emerald-900/30 border-b border-emerald-800/50 flex flex-col gap-2 relative overflow-hidden">
+                {tutorialStep === 3 && (() => {
+                  const { title, text } = getDynamicLaboratoryExplanation();
+                  return (
+                    <div className="p-4 bg-emerald-950/40 border-b border-emerald-800/50 flex flex-col gap-2 relative overflow-hidden text-emerald-200">
                       <div className="absolute -right-4 -top-4 text-emerald-500/10">
                          <Zap size={100} />
                       </div>
-                      <div className="text-emerald-400 font-bold flex items-center gap-2 text-lg"><Zap size={20} /> ¡Éxito Matemático!</div>
-                      <p className="text-sm text-emerald-100/80 leading-relaxed relative z-10">
-                        Compara los gradientes (-18.667 y -8) y los nuevos pesos (m:0.1867, b:0.08) en el panel de abajo con los cálculos manuales que leíste arriba. ¡El simulador hizo exactamente la misma matemática que tú!
-                      </p>
-                   </div>
-                )}
+                      <div className="text-emerald-400 font-bold flex items-center gap-2 text-lg">
+                        <Zap size={20} /> {title}
+                      </div>
+                      <div className="text-xs text-emerald-100/90 leading-relaxed relative z-10 prose prose-invert prose-emerald prose-p:my-1 prose-ul:my-1">
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                          {text}
+                        </ReactMarkdown>
+                      </div>
+                    </div>
+                  );
+                })()}
                 <MathPanel step={lr.currentStep} data={lr.data} m={lr.m} b={lr.b} learningRate={lr.learningRate} calculations={lr.calculations} />
              </div>
           </div>

@@ -24,12 +24,18 @@ export const CanvasChart: React.FC<CanvasChartProps> = ({ data, m, b, xLabel, yL
     if (data.length === 0) {
       return { minX: 0, maxX: 10, minY: 0, maxY: 10 };
     }
-    const xs = data.map((d) => d.x);
-    const ys = data.map((d) => d.y);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+
+    for (let i = 0; i < data.length; i++) {
+      const d = data[i];
+      if (d.x < minX) minX = d.x;
+      if (d.x > maxX) maxX = d.x;
+      if (d.y < minY) minY = d.y;
+      if (d.y > maxY) maxY = d.y;
+    }
 
     // Add padding to bounds
     const dx = maxX - minX || 1;
@@ -233,7 +239,7 @@ export const CanvasChart: React.FC<CanvasChartProps> = ({ data, m, b, xLabel, yL
   // Handle hover interactions
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-    if (!canvas || data.length === 0) return;
+    if (!canvas || data.length === 0 || data.length > 10000) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;

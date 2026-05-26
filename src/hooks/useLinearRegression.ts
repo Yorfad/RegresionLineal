@@ -44,17 +44,23 @@ export function useLinearRegression() {
   const [currentStep, setCurrentStep] = useState<Step>(Step.PREDICTIONS);
   const [history, setHistory] = useState<HistoryRecord[]>([]);
 
-  // Calculate all current values derived from m and b
   const calculations = useMemo(() => {
-    const n = data.length;
+    const cleanData = data
+      .map((d) => ({
+        x: d.x === '' ? NaN : Number(d.x),
+        y: d.y === '' ? NaN : Number(d.y),
+      }))
+      .filter((d) => Number.isFinite(d.x) && Number.isFinite(d.y));
+
+    const n = cleanData.length;
     if (n === 0) return null;
 
     const mNum = Number(m) || 0;
     const bNum = Number(b) || 0;
     const lrNum = Number(learningRate) || 0;
 
-    const predictions = data.map((d) => mNum * Number(d.x) + bNum);
-    const errors = data.map((d, i) => predictions[i] - Number(d.y)); // y_hat - y, careful with sign for gradient
+    const predictions = cleanData.map((d) => mNum * d.x + bNum);
+    const errors = cleanData.map((d, i) => predictions[i] - d.y); // y_hat - y, careful with sign for gradient
     // Usually gradient is (2/n) * sum((y_hat - y) * x)
     // If error = y - y_hat, grad = (-2/n) * sum((y - y_hat) * x)
     // Let's use standard convention: error = predicted - actual = y_hat - y
@@ -62,8 +68,8 @@ export function useLinearRegression() {
     const squaredErrors = errors.map((e) => Math.pow(e, 2));
     const mse = squaredErrors.reduce((sum, sq) => sum + sq, 0) / n;
     
-    const gradM = (2 / n) * data.reduce((sum, d, i) => sum + errors[i] * Number(d.x), 0);
-    const gradB = (2 / n) * data.reduce((sum, _, i) => sum + errors[i], 0);
+    const gradM = (2 / n) * cleanData.reduce((sum, d, i) => sum + errors[i] * d.x, 0);
+    const gradB = (2 / n) * cleanData.reduce((sum, _, i) => sum + errors[i], 0);
 
     const nextM = mNum - lrNum * gradM;
     const nextB = bNum - lrNum * gradB;
@@ -126,7 +132,15 @@ export function useLinearRegression() {
     let localM = Number(m) || 0;
     let localB = Number(b) || 0;
     const lrNum = Number(learningRate) || 0.01;
-    const n = data.length;
+    
+    const cleanData = data
+      .map((d) => ({
+        x: d.x === '' ? NaN : Number(d.x),
+        y: d.y === '' ? NaN : Number(d.y),
+      }))
+      .filter((d) => Number.isFinite(d.x) && Number.isFinite(d.y));
+
+    const n = cleanData.length;
     if (n === 0) return;
 
     let localIteration = iteration;
@@ -138,8 +152,8 @@ export function useLinearRegression() {
       let errorSumSq = 0;
 
       for (let i = 0; i < n; i++) {
-        const xVal = Number(data[i].x);
-        const yVal = Number(data[i].y);
+        const xVal = cleanData[i].x;
+        const yVal = cleanData[i].y;
         const pred = localM * xVal + localB;
         const error = pred - yVal;
         gradM += error * xVal;
