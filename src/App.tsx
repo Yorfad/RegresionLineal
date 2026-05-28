@@ -61,15 +61,16 @@ function App() {
       <div className="flex-1 flex overflow-hidden">
         {activeTab === 'simulator' ? (
           <>
-            <Sidebar 
-              data={lr.data} 
+            <Sidebar
+              data={lr.data}
               setData={lr.setData}
               m={lr.m}
               setM={lr.setM}
               b={lr.b}
               setB={lr.setB}
-              learningRate={lr.learningRate} 
-              setLearningRate={lr.setLearningRate} 
+              learningRate={lr.learningRate}
+              setLearningRate={lr.setLearningRate}
+              locked={lr.currentStep > 0 || lr.iteration > 1}
             />
 
             <main className="flex-1 flex flex-col p-6 gap-6 overflow-y-auto relative">

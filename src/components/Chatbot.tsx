@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, Key, Eye, EyeOff } from 'lucide-react';
+import { Send, Bot, User, Key, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -187,43 +187,31 @@ Reglas de respuesta:
   };
 
   return (
-    <>
-      {/* Floating Button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 left-6 p-4 rounded-full bg-slate-700 hover:bg-slate-600 text-white shadow-lg shadow-slate-700/30 transition-all transform hover:scale-105 z-50 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
-      >
-        <MessageCircle size={28} />
-      </button>
+    <div className="fixed bottom-0 left-0 w-[360px] z-50 shadow-2xl">
 
-      {/* Chatbot Window */}
-      <div
-        className={`fixed bottom-6 left-6 w-[400px] h-[600px] max-h-[80vh] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-left z-50 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}
-      >
-        {/* Header */}
-        <div className="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center select-none">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-700/50 text-slate-300 rounded-lg">
-              <Bot size={20} />
+      {/* Chat body — opens upward from the header */}
+      {isOpen && (
+        <div className="bg-slate-900 border border-slate-700 border-b-0 rounded-t-2xl flex flex-col overflow-hidden" style={{ height: '460px' }}>
+
+          {/* Header inside body (settings toggle lives here when open) */}
+          <div className="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-slate-700/50 text-slate-300 rounded-lg">
+                <Bot size={16} />
+              </div>
+              <div>
+                <span className="font-bold text-slate-100 text-sm">Asistente IA</span>
+                <span className="text-slate-500 text-[10px] block leading-none">Impulsado por Gemini</span>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-slate-100">Asistente IA</h3>
-              <p className="text-xs text-slate-400">Impulsado por Gemini</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <button 
-              onClick={() => setShowSettings(prev => !prev)} 
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowSettings(prev => !prev); }}
               className={`p-1.5 rounded-md transition-colors ${showSettings ? 'bg-slate-600/30 text-slate-200 border border-slate-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
               title="Configurar API Key de Gemini"
             >
-              <Key size={16} />
-            </button>
-            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-200 hover:bg-slate-700 p-1 rounded-md transition-colors">
-              <X size={20} />
+              <Key size={15} />
             </button>
           </div>
-        </div>
 
         {/* API Key Settings Panel */}
         {showSettings && (
@@ -314,25 +302,39 @@ Reglas de respuesta:
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 bg-slate-800 border-t border-slate-700 flex gap-2">
-          <input
-            type="text"
-            placeholder="Pregunta algo sobre el modelo..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-slate-500 transition-colors"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading}
-            className="p-2 bg-slate-600 hover:bg-slate-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg transition-colors flex items-center justify-center"
-          >
-            <Send size={18} />
-          </button>
+          {/* Input Area */}
+          <div className="p-3 bg-slate-800 border-t border-slate-700 flex gap-2 shrink-0">
+            <input
+              type="text"
+              placeholder="Pregunta algo sobre el modelo..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-slate-500 transition-colors"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || isLoading}
+              className="p-2 bg-slate-600 hover:bg-slate-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg transition-colors flex items-center justify-center"
+            >
+              <Send size={18} />
+            </button>
+          </div>
         </div>
+      )}
+
+      {/* Toggle bar — always visible at the very bottom */}
+      <div
+        onClick={() => setIsOpen(prev => !prev)}
+        className={`bg-slate-800 border border-slate-700 px-4 py-3 flex items-center justify-between cursor-pointer select-none hover:bg-slate-700/60 transition-colors ${isOpen ? '' : 'rounded-t-2xl'}`}
+      >
+        <div className="flex items-center gap-2">
+          <Bot size={16} className="text-slate-400" />
+          <span className="text-sm font-semibold text-slate-200">Asistente IA</span>
+          <span className="text-[10px] text-slate-500">· Gemini</span>
+        </div>
+        {isOpen ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronUp size={16} className="text-slate-400" />}
       </div>
-    </>
+    </div>
   );
 };

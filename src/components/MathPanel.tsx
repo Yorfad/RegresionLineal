@@ -37,9 +37,10 @@ const StepCard: React.FC<StepCardProps> = ({ stepId, currentStep, title, childre
   );
 };
 
-const FormulaBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="bg-slate-950 rounded-lg px-3 py-2 text-xs font-mono text-slate-300 mb-3 border border-slate-800">
-    {children}
+const FormulaBox: React.FC<{ children: React.ReactNode; sub?: string }> = ({ children, sub }) => (
+  <div className="bg-slate-950 rounded-lg px-3 py-2 text-xs font-mono border border-slate-800 mb-3">
+    <div className="text-slate-300">{children}</div>
+    {sub && <div className="text-slate-500 text-[10px] mt-0.5 font-sans">{sub}</div>}
   </div>
 );
 
@@ -69,7 +70,7 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
 
       {/* PASO 1: PREDICCIONES */}
       <StepCard stepId={Step.PREDICTIONS} currentStep={step} title="Cálculo de ŷ (predicciones)">
-        <FormulaBox>
+        <FormulaBox sub="predicción = pendiente · x + intercepto">
           ŷᵢ = m · xᵢ + b &nbsp;=&nbsp;
           <span className="text-slate-100">{f4(mNum)}</span> · xᵢ +{' '}
           <span className="text-slate-100">{f4(bNum)}</span>
@@ -79,10 +80,10 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
             <thead>
               <tr className="text-slate-500 border-b border-slate-700">
                 <th className="pb-1.5 text-left font-medium">i</th>
-                <th className="pb-1.5 text-left font-medium">xᵢ</th>
-                <th className="pb-1.5 text-left font-medium">yᵢ</th>
-                <th className="pb-1.5 text-left font-medium text-slate-400">Cálculo</th>
-                <th className="pb-1.5 text-right font-medium">ŷᵢ</th>
+                <th className="pb-1.5 text-left font-medium">x (entrada)</th>
+                <th className="pb-1.5 text-left font-medium">y (real)</th>
+                <th className="pb-1.5 text-left font-medium text-slate-400">m·x + b</th>
+                <th className="pb-1.5 text-right font-medium">ŷ (pred.)</th>
               </tr>
             </thead>
             <tbody>
@@ -104,16 +105,16 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
 
       {/* PASO 2: ERROR POR DATO */}
       <StepCard stepId={Step.ERRORS} currentStep={step} title="Cálculo del error por dato (eᵢ)">
-        <FormulaBox>eᵢ = ŷᵢ − yᵢ</FormulaBox>
+        <FormulaBox sub="error = predicción − valor real">eᵢ = ŷᵢ − yᵢ</FormulaBox>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-slate-500 border-b border-slate-700">
                 <th className="pb-1.5 text-left font-medium">i</th>
-                <th className="pb-1.5 text-left font-medium">ŷᵢ</th>
-                <th className="pb-1.5 text-left font-medium">yᵢ</th>
-                <th className="pb-1.5 text-left font-medium text-slate-400">Cálculo</th>
-                <th className="pb-1.5 text-right font-medium">eᵢ</th>
+                <th className="pb-1.5 text-left font-medium">ŷ (pred.)</th>
+                <th className="pb-1.5 text-left font-medium">y (real)</th>
+                <th className="pb-1.5 text-left font-medium text-slate-400">ŷ − y</th>
+                <th className="pb-1.5 text-right font-medium">e (error)</th>
               </tr>
             </thead>
             <tbody>
@@ -135,15 +136,15 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
 
       {/* PASO 3: ERROR CUADRÁTICO */}
       <StepCard stepId={Step.SQUARED_ERRORS} currentStep={step} title="Cálculo del error cuadrático (eᵢ²)">
-        <FormulaBox>eᵢ² = (ŷᵢ − yᵢ)²</FormulaBox>
+        <FormulaBox sub="error² = (predicción − real)²  — penaliza errores grandes">eᵢ² = (ŷᵢ − yᵢ)²</FormulaBox>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-slate-500 border-b border-slate-700">
                 <th className="pb-1.5 text-left font-medium">i</th>
-                <th className="pb-1.5 text-left font-medium">eᵢ</th>
-                <th className="pb-1.5 text-left font-medium text-slate-400">Cálculo</th>
-                <th className="pb-1.5 text-right font-medium">eᵢ²</th>
+                <th className="pb-1.5 text-left font-medium">e (error)</th>
+                <th className="pb-1.5 text-left font-medium text-slate-400">(e)²</th>
+                <th className="pb-1.5 text-right font-medium">e² (error²)</th>
               </tr>
             </thead>
             <tbody>
@@ -162,7 +163,7 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
 
       {/* PASO 4: ERROR TOTAL (MSE) */}
       <StepCard stepId={Step.MSE} currentStep={step} title="Cálculo del error total del modelo (J)">
-        <FormulaBox>J = (1/n) · Σ eᵢ²</FormulaBox>
+        <FormulaBox sub="costo J = promedio de todos los errores²  — queremos minimizarlo">J = (1/n) · Σ eᵢ²</FormulaBox>
         <div className="space-y-2 text-xs">
           <div className="bg-slate-900 rounded border border-slate-800 p-2 font-mono text-slate-400 break-all">
             <span className="text-slate-500">Σ eᵢ² = </span>
@@ -237,8 +238,8 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
       <StepCard stepId={Step.GRADIENTS} currentStep={step} title="Cálculo de gradientes">
         <div className="space-y-4">
           <div>
-            <div className="text-slate-400 text-xs font-semibold mb-1.5">Gradiente respecto a b:</div>
-            <FormulaBox>∂J/∂b = (2/n) · Σ eᵢ</FormulaBox>
+            <div className="text-slate-400 text-xs font-semibold mb-1.5">Gradiente respecto a b (intercepto):</div>
+            <FormulaBox sub="gradiente de b = dirección para reducir el costo ajustando el intercepto">∂J/∂b = (2/n) · Σ eᵢ</FormulaBox>
             <div className="space-y-1 text-xs">
               <div className="bg-slate-900 rounded border border-slate-800 p-2 font-mono text-slate-400">
                 = (2 / {n}) · ({f4(sumErrors)})
@@ -250,8 +251,8 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
             </div>
           </div>
           <div>
-            <div className="text-slate-400 text-xs font-semibold mb-1.5">Gradiente respecto a m:</div>
-            <FormulaBox>∂J/∂m = (2/n) · Σ (eᵢ · xᵢ)</FormulaBox>
+            <div className="text-slate-400 text-xs font-semibold mb-1.5">Gradiente respecto a m (pendiente):</div>
+            <FormulaBox sub="gradiente de m = dirección para reducir el costo ajustando la pendiente">∂J/∂m = (2/n) · Σ (eᵢ · xᵢ)</FormulaBox>
             <div className="space-y-1 text-xs">
               <div className="bg-slate-900 rounded border border-slate-800 p-2 font-mono text-slate-400">
                 = (2 / {n}) · ({f4(sumErrorsByX)})
@@ -267,13 +268,13 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
 
       {/* PASO 7: ACTUALIZACIÓN */}
       <StepCard stepId={Step.UPDATE} currentStep={step} title="Actualización de parámetros del modelo">
-        <FormulaBox>param_nuevo = param − α · ∂J/∂param</FormulaBox>
+        <FormulaBox sub="nuevo parámetro = parámetro actual  −  tasa de aprendizaje (α) × gradiente">param_nuevo = param − α · ∂J/∂param</FormulaBox>
         <div className="space-y-4">
           <div>
-            <div className="text-slate-400 text-xs font-semibold mb-1.5">Actualización de m:</div>
+            <div className="text-slate-400 text-xs font-semibold mb-1.5">Actualización de m (pendiente):</div>
             <div className="space-y-1 text-xs">
               <div className="bg-slate-900 rounded border border-slate-800 p-2 font-mono text-slate-400">
-                m_nuevo = m − α · (∂J/∂m)
+                m_nuevo (pendiente) = m − α · (∂J/∂m)
               </div>
               <div className="bg-slate-900 rounded border border-slate-800 p-2 font-mono text-slate-400">
                 = {f4(mNum)} − {lrNum} · ({f4(gradM)})
@@ -285,10 +286,10 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, m, b, learningRate, 
             </div>
           </div>
           <div>
-            <div className="text-slate-400 text-xs font-semibold mb-1.5">Actualización de b:</div>
+            <div className="text-slate-400 text-xs font-semibold mb-1.5">Actualización de b (intercepto):</div>
             <div className="space-y-1 text-xs">
               <div className="bg-slate-900 rounded border border-slate-800 p-2 font-mono text-slate-400">
-                b_nuevo = b − α · (∂J/∂b)
+                b_nuevo (intercepto) = b − α · (∂J/∂b)
               </div>
               <div className="bg-slate-900 rounded border border-slate-800 p-2 font-mono text-slate-400">
                 = {f4(bNum)} − {lrNum} · ({f4(gradB)})

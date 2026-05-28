@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { DataPoint } from '../hooks/useLinearRegression';
-import { Settings, Plus, Trash2 } from 'lucide-react';
+import { Settings, Plus, Trash2, Lock, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
 
 interface SidebarProps {
   data: DataPoint[];
@@ -11,109 +11,217 @@ interface SidebarProps {
   setB: (b: number | string) => void;
   learningRate: number | string;
   setLearningRate: (lr: number | string) => void;
+  locked: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ data, setData, m, setM, b, setB, learningRate, setLearningRate }) => {
+const parsePasteData = (raw: string): DataPoint[] => {
+  const result: DataPoint[] = [];
+  const lines = raw.trim().split(/[\n\r;]+/);
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) continue;
+    const nums = t.split(/[\s,]+/).map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+    for (let i = 0; i + 1 < nums.length; i += 2) {
+      result.push({ x: nums[i], y: nums[i + 1] });
+    }
+  }
+  return result;
+};
+
+const inputCls = (locked: boolean) =>
+  `w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${
+    locked
+      ? 'border-slate-800 opacity-50 cursor-not-allowed'
+      : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'
+  }`;
+
+export const Sidebar: React.FC<SidebarProps> = ({
+  data, setData, m, setM, b, setB, learningRate, setLearningRate, locked,
+}) => {
+  const [showPaste, setShowPaste] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const [pasteError, setPasteError] = useState('');
+
   const handleAddPoint = () => {
+    if (locked) return;
     setData([...data, { x: 0, y: 0 }]);
   };
 
   const handleRemovePoint = (index: number) => {
+    if (locked) return;
     setData(data.filter((_, i) => i !== index));
   };
 
   const handleUpdatePoint = (index: number, field: 'x' | 'y', value: string) => {
+    if (locked) return;
     const numValue = value === '' ? '' : parseFloat(value);
     const newData = [...data];
     newData[index] = { ...newData[index], [field]: isNaN(numValue as number) ? '' : numValue };
     setData(newData);
   };
+
+  const handleApplyPaste = () => {
+    if (locked) return;
+    const parsed = parsePasteData(pasteText);
+    if (parsed.length < 2) {
+      setPasteError('Se necesitan al menos 2 pares válidos (x, y).');
+      return;
+    }
+    setData(parsed);
+    setPasteText('');
+    setPasteError('');
+    setShowPaste(false);
+  };
+
   return (
-    <aside className="w-full md:w-80 bg-slate-800 p-6 flex flex-col gap-6 border-r border-slate-700 overflow-y-auto shrink-0">
+    <aside className="w-full md:w-80 bg-slate-800 p-5 flex flex-col gap-5 border-r border-slate-700 overflow-y-auto shrink-0">
+
+      {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-2 bg-slate-700/50 rounded-lg text-slate-300">
-          <Settings size={24} />
+          <Settings size={22} />
         </div>
-        <h1 className="text-2xl font-bold text-slate-100">
-          Linear Sim
-        </h1>
+        <h1 className="text-xl font-bold text-slate-100">Linear Sim</h1>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-slate-200">Parámetros Iniciales</h2>
-        
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Pendiente inicial (m)</label>
+      {/* Lock banner */}
+      {locked && (
+        <div className="flex items-center gap-2 bg-slate-700/40 border border-slate-600/50 rounded-lg px-3 py-2 text-xs text-slate-300">
+          <Lock size={13} className="shrink-0 text-slate-400" />
+          <span>Reinicia para editar los datos</span>
+        </div>
+      )}
+
+      {/* Parámetros iniciales */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Parámetros Iniciales</h2>
+
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-400">Pendiente inicial (m)</label>
           <input
             type="number"
             step="0.1"
             value={m}
+            disabled={locked}
             onChange={(e) => setM(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition-colors"
+            className={inputCls(locked)}
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Intercepto inicial (b)</label>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-400">Intercepto inicial (b)</label>
           <input
             type="number"
             step="0.1"
             value={b}
+            disabled={locked}
             onChange={(e) => setB(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition-colors"
+            className={inputCls(locked)}
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-400">Learning Rate (α)</label>
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-400">Learning Rate (α)</label>
           <input
             type="number"
             step="0.001"
             value={learningRate}
+            disabled={locked}
             onChange={(e) => setLearningRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition-colors"
+            className={inputCls(locked)}
           />
         </div>
       </div>
 
-      <div className="space-y-4">
+      {/* Datos X, Y */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-200">Datos (X, Y)</h2>
-          <button 
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Datos (X, Y)</h2>
+          <button
             onClick={handleAddPoint}
-            className="p-1 hover:bg-slate-700 rounded-md text-slate-400 hover:text-slate-200 transition-colors"
+            disabled={locked}
+            className="p-1 hover:bg-slate-700 rounded-md text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Plus size={18} />
+            <Plus size={16} />
           </button>
         </div>
 
-        <div className="space-y-2">
+        <div className="flex text-[11px] text-slate-500 px-1 gap-2">
+          <span className="flex-1 text-center">x</span>
+          <span className="flex-1 text-center">y</span>
+          <span className="w-8" />
+        </div>
+
+        <div className="space-y-1.5">
           {data.map((point, index) => (
             <div key={index} className="flex gap-2 items-center">
               <input
                 type="number"
                 value={point.x}
+                disabled={locked}
                 onChange={(e) => handleUpdatePoint(index, 'x', e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-slate-500 transition-colors"
+                className={`flex-1 bg-slate-900 border rounded-lg px-2 py-1.5 text-sm text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500'}`}
               />
               <input
                 type="number"
                 value={point.y}
+                disabled={locked}
                 onChange={(e) => handleUpdatePoint(index, 'y', e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-slate-500 transition-colors"
+                className={`flex-1 bg-slate-900 border rounded-lg px-2 py-1.5 text-sm text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500'}`}
               />
-              <button 
+              <button
                 onClick={() => handleRemovePoint(index)}
-                className="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors"
+                disabled={locked}
+                className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Trash2 size={16} />
+                <Trash2 size={14} />
               </button>
             </div>
           ))}
         </div>
       </div>
-      
-      {/* We can add m and b direct controls here if needed, but the simulation drives them */}
+
+      {/* Pegar datos */}
+      {!locked && (
+        <div className="border border-slate-700 rounded-xl overflow-hidden">
+          <button
+            onClick={() => { setShowPaste(p => !p); setPasteError(''); }}
+            className="w-full flex items-center justify-between px-3 py-2.5 text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <ClipboardList size={15} />
+              Pegar datos (CSV)
+            </span>
+            {showPaste ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
+
+          {showPaste && (
+            <div className="p-3 border-t border-slate-700 space-y-2 bg-slate-900/50">
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Pega pares <code className="text-slate-300">x,y</code> separados por coma, espacio o salto de línea.
+                <br />
+                Ej: <code className="text-slate-300">1,2 3,4 5,6</code> o uno por línea.
+              </p>
+              <textarea
+                rows={5}
+                value={pasteText}
+                onChange={(e) => { setPasteText(e.target.value); setPasteError(''); }}
+                placeholder={'1,2\n3,4\n5,6'}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-slate-500 resize-none"
+              />
+              {pasteError && (
+                <p className="text-[11px] text-rose-400">{pasteError}</p>
+              )}
+              <button
+                onClick={handleApplyPaste}
+                className="w-full bg-slate-600 hover:bg-slate-500 text-white text-xs font-semibold py-2 rounded-lg transition-colors"
+              >
+                Aplicar datos
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </aside>
   );
 };
