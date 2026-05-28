@@ -5,19 +5,23 @@ export type DataPoint = { x: number | string; y: number | string };
 export const Step = {
   PREDICTIONS: 0,
   ERRORS: 1,
-  MSE: 2,
-  GRADIENTS: 3,
-  UPDATE: 4,
+  SQUARED_ERRORS: 2,
+  MSE: 3,
+  MATRICES: 4,
+  GRADIENTS: 5,
+  UPDATE: 6,
 } as const;
 
 export type Step = typeof Step[keyof typeof Step];
 
 export const StepName: Record<Step, string> = {
-  0: 'PREDICTIONS',
-  1: 'ERRORS',
-  2: 'MSE',
-  3: 'GRADIENTS',
-  4: 'UPDATE',
+  0: 'Predicciones (ŷ)',
+  1: 'Error por dato',
+  2: 'Error cuadrático',
+  3: 'MSE (Error total)',
+  4: 'Construcción de matrices',
+  5: 'Gradientes',
+  6: 'Actualización',
 };
 
 export interface HistoryRecord {
@@ -60,14 +64,10 @@ export function useLinearRegression() {
     const lrNum = Number(learningRate) || 0;
 
     const predictions = cleanData.map((d) => mNum * d.x + bNum);
-    const errors = cleanData.map((d, i) => predictions[i] - d.y); // y_hat - y, careful with sign for gradient
-    // Usually gradient is (2/n) * sum((y_hat - y) * x)
-    // If error = y - y_hat, grad = (-2/n) * sum((y - y_hat) * x)
-    // Let's use standard convention: error = predicted - actual = y_hat - y
-    
+    const errors = cleanData.map((d, i) => predictions[i] - d.y);
     const squaredErrors = errors.map((e) => Math.pow(e, 2));
     const mse = squaredErrors.reduce((sum, sq) => sum + sq, 0) / n;
-    
+
     const gradM = (2 / n) * cleanData.reduce((sum, d, i) => sum + errors[i] * d.x, 0);
     const gradB = (2 / n) * cleanData.reduce((sum, _, i) => sum + errors[i], 0);
 
@@ -76,6 +76,7 @@ export function useLinearRegression() {
 
     return {
       n,
+      points: cleanData,
       predictions,
       errors,
       squaredErrors,
@@ -83,7 +84,7 @@ export function useLinearRegression() {
       gradM,
       gradB,
       nextM,
-      nextB
+      nextB,
     };
   }, [data, m, b, learningRate]);
 
@@ -91,7 +92,6 @@ export function useLinearRegression() {
     if (currentStep < Step.UPDATE) {
       setCurrentStep((prev) => (prev + 1) as Step);
     } else {
-      // We are at UPDATE, so apply changes and go to next iteration
       if (calculations) {
         setHistory((prev) => [...prev, { iteration, m: Number(m) || 0, b: Number(b) || 0, mse: calculations.mse }]);
         setM(calculations.nextM);
@@ -106,7 +106,6 @@ export function useLinearRegression() {
     if (currentStep > Step.PREDICTIONS) {
       setCurrentStep((prev) => (prev - 1) as Step);
     } else if (iteration > 1) {
-      // Go back to previous iteration's UPDATE step
       const lastRecord = history[history.length - 1];
       if (lastRecord) {
         setM(lastRecord.m);
@@ -132,7 +131,7 @@ export function useLinearRegression() {
     let localM = Number(m) || 0;
     let localB = Number(b) || 0;
     const lrNum = Number(learningRate) || 0.01;
-    
+
     const cleanData = data
       .map((d) => ({
         x: d.x === '' ? NaN : Number(d.x),
@@ -168,7 +167,7 @@ export function useLinearRegression() {
         iteration: localIteration,
         m: localM,
         b: localB,
-        mse: errorSumSq / n
+        mse: errorSumSq / n,
       });
 
       localM = localM - lrNum * gradM;
@@ -210,6 +209,6 @@ export function useLinearRegression() {
     prevStep,
     runFullIteration,
     runMultipleIterations,
-    reset
+    reset,
   };
 }
