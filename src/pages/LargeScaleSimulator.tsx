@@ -727,10 +727,10 @@ Actualmente, la normalización está **${normalizeStatus}**.
         {/* Title Header */}
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl">
           <div>
-            <div className="flex items-center gap-2 text-blue-400 font-semibold mb-1 text-sm">
+            <div className="flex items-center gap-2 text-slate-300 font-semibold mb-1 text-sm">
               <Sparkles size={16} className="animate-pulse" /> LABORATARIO AVANZADO DE APRENDIZAJE AUTOMÁTICO
             </div>
-            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-extrabold text-slate-100">
               Regresión Lineal a Gran Escala
             </h1>
             <p className="text-slate-400 text-sm md:text-base mt-1">
@@ -739,8 +739,8 @@ Actualmente, la normalización está **${normalizeStatus}**.
           </div>
           <div className="flex items-center gap-2 self-start md:self-center">
             <div className="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-mono text-slate-300">
-              <Cpu size={14} className="text-indigo-400" />
-              Dataset: <span className="text-emerald-400 font-bold">{data.length.toLocaleString()} puntos</span>
+              <Cpu size={14} className="text-slate-400" />
+              Dataset: <span className="text-slate-200 font-bold">{data.length.toLocaleString()} puntos</span>
             </div>
           </div>
         </header>
@@ -760,7 +760,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
               <div className="flex flex-col gap-2.5">
                 <button
                   onClick={() => setDatasetType('seattle')}
-                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'seattle' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'seattle' ? 'bg-slate-700/40 border-slate-500 text-slate-200 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
                     <div className="text-white font-medium">Casas de Seattle (Simulado Realista)</div>
@@ -771,7 +771,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
 
                 <button
                   onClick={() => setDatasetType('co2')}
-                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'co2' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'co2' ? 'bg-slate-700/40 border-slate-500 text-slate-200 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
                     <div className="text-white font-medium">Emisiones de CO2 (Simulado Realista)</div>
@@ -782,7 +782,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
 
                 <button
                   onClick={() => setDatasetType('salaries')}
-                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'salaries' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'salaries' ? 'bg-slate-700/40 border-slate-500 text-slate-200 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
                     <div className="text-white font-medium">Salarios Tech (Simulado Realista)</div>
@@ -793,7 +793,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
 
                 <button
                   onClick={() => setDatasetType('synthetic')}
-                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'synthetic' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'synthetic' ? 'bg-slate-700/40 border-slate-500 text-slate-200 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
                     <div className="text-white font-medium">Generador Sintético</div>
@@ -804,7 +804,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
 
                 <button
                   onClick={() => setDatasetType('custom')}
-                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'custom' ? 'bg-blue-600/10 border-blue-500 text-blue-400 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
+                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex justify-between items-center ${datasetType === 'custom' ? 'bg-slate-700/40 border-slate-500 text-slate-200 font-semibold' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'}`}
                 >
                   <div>
                     <div className="text-white font-medium">Pegar Datos Personalizados</div>
@@ -823,7 +823,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                     <input 
                       type="range" min="100" max="10000" step="100"
                       value={numPoints} onChange={(e) => setNumPoints(Number(e.target.value))}
-                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-slate-400"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
@@ -847,26 +847,26 @@ Actualmente, la normalización está **${normalizeStatus}**.
                     <input 
                       type="range" min="0" max="50" step="1"
                       value={noiseLevel} onChange={(e) => setNoiseLevel(Number(e.target.value))}
-                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-slate-400"
                     />
                   </div>
                   <button 
                     onClick={generateSyntheticData}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded transition-colors text-xs"
+                    className="w-full bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 rounded transition-colors text-xs"
                   >
                     Generar Datos
                   </button>
 
                   {/* Guía Educativa del Generador Sintético */}
-                  <div className="mt-2 p-3 bg-blue-950/20 border border-blue-900/40 rounded-lg text-slate-400">
-                    <div className="flex items-center gap-1.5 text-blue-400 font-semibold mb-1 text-[11px]">
+                  <div className="mt-2 p-3 bg-slate-800/30 border border-slate-700/40 rounded-lg text-slate-400">
+                    <div className="flex items-center gap-1.5 text-slate-300 font-semibold mb-1 text-[11px]">
                       <HelpCircle size={12} /> GUÍA DE USO Y PARÁMETROS
                     </div>
                     <ul className="list-disc pl-3.5 space-y-1 text-[10px] leading-relaxed">
-                      <li>Genera una ecuación lineal teórica: <code className="text-emerald-400">y = m·x + b + ruido</code>.</li>
+                      <li>Genera una ecuación lineal teórica: <code className="text-slate-300">y = m·x + b + ruido</code>.</li>
                       <li><strong>Valores recomendados:</strong> Pendiente <code className="text-slate-300">m (1.0 a 5.0)</code>, Intercepto <code className="text-slate-300">b (10 a 100)</code>, Ruido <code className="text-slate-300">(5 a 25)</code>.</li>
-                      <li><strong>¿Explosión del Gradiente?</strong> Sin normalización (escala real), multiplicar por coordenadas grandes (hasta 100) produce gradientes gigantes. Con <code className="text-blue-400">α = 0.1</code> y normalización apagada, el modelo se dispara instantáneamente a <code className="text-rose-400">Infinity/NaN</code> (línea vertical y colapso).</li>
-                      <li><strong>Solución:</strong> Mantén la <code className="text-emerald-400">Normalización Activa</code> para usar <code className="text-blue-400">α = 0.1</code>, o reduce el learning rate a <code className="text-amber-500">α ≤ 0.00005</code> si la desactivas.</li>
+                      <li><strong>¿Explosión del Gradiente?</strong> Sin normalización (escala real), multiplicar por coordenadas grandes (hasta 100) produce gradientes gigantes. Con <code className="text-slate-300">α = 0.1</code> y normalización apagada, el modelo se dispara instantáneamente a <code className="text-rose-400">Infinity/NaN</code> (línea vertical y colapso).</li>
+                      <li><strong>Solución:</strong> Mantén la <code className="text-slate-300">Normalización Activa</code> para usar <code className="text-slate-300">α = 0.1</code>, o reduce el learning rate a <code className="text-amber-500">α ≤ 0.00005</code> si la desactivas.</li>
                     </ul>
                   </div>
                 </div>
@@ -880,16 +880,16 @@ Actualmente, la normalización está **${normalizeStatus}**.
                     rows={6}
                     value={csvText}
                     onChange={(e) => setCsvText(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-slate-500"
                   />
                   <button
                     onClick={handleParseCsv}
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded transition-colors text-xs flex items-center justify-center gap-2"
+                    className="w-full bg-slate-600 hover:bg-slate-500 text-white font-semibold py-2 rounded transition-colors text-xs flex items-center justify-center gap-2"
                   >
                     <Upload size={14} /> Importar Datos
                   </button>
                   {csvSuccessMessage && (
-                    <div className="text-xs text-emerald-400 text-center font-medium bg-emerald-950/20 border border-emerald-900/50 rounded py-1">
+                    <div className="text-xs text-slate-300 text-center font-medium bg-slate-800/30 border border-slate-700/50 rounded py-1">
                       {csvSuccessMessage}
                     </div>
                   )}
@@ -920,7 +920,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                       setNormalize(prev => !prev);
                       resetModel();
                     }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${normalize ? 'bg-emerald-500' : 'bg-slate-800'}`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${normalize ? 'bg-slate-500' : 'bg-slate-800'}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${normalize ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
@@ -936,7 +936,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between text-sm">
                   <label className="font-semibold text-slate-300">Learning Rate (α):</label>
-                  <span className="font-mono text-blue-400 font-bold">{learningRate}</span>
+                  <span className="font-mono text-slate-200 font-bold">{learningRate}</span>
                 </div>
                 <input 
                   type="number"
@@ -944,7 +944,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   min="0.00000001"
                   value={learningRate} 
                   onChange={(e) => setLearningRate(Number(e.target.value))}
-                  className="bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-white font-mono text-sm focus:outline-none focus:border-blue-500"
+                  className="bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-white font-mono text-sm focus:outline-none focus:border-slate-500"
                 />
               </div>
 
@@ -952,12 +952,12 @@ Actualmente, la normalización está **${normalizeStatus}**.
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between text-sm">
                   <label className="font-semibold text-slate-300">Épocas por fotograma:</label>
-                  <span className="font-mono text-indigo-400 font-bold">{trainingSpeed}x</span>
+                  <span className="font-mono text-slate-300 font-bold">{trainingSpeed}x</span>
                 </div>
                 <input 
                   type="range" min="1" max="100" step="1"
                   value={trainingSpeed} onChange={(e) => setTrainingSpeed(Number(e.target.value))}
-                  className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-slate-400"
                 />
               </div>
             </section>
@@ -978,7 +978,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   </div>
                   <div>
                     <span className="text-xs text-slate-500 block">TIEMPO CÓMPUTO</span>
-                    <span className="text-xl font-bold font-mono text-indigo-400">
+                    <span className="text-xl font-bold font-mono text-slate-300">
                       {elapsedTime < 1 ? elapsedTime.toFixed(3) : Math.round(elapsedTime)} ms
                     </span>
                   </div>
@@ -992,7 +992,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
 
                 <div className="flex items-center gap-3 bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg">
                   <div className="text-xs font-semibold text-slate-400">MODELO AJUSTADO:</div>
-                  <div className="text-sm font-mono font-bold text-emerald-400">
+                  <div className="text-sm font-mono font-bold text-slate-300">
                     {isExploded ? 'y = NaN * x + NaN' : `y = ${mOrig.toFixed(4)}x + ${bOrig.toFixed(2)}`}
                   </div>
                 </div>
@@ -1057,7 +1057,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                       }
                     }}
                     disabled={isExploded}
-                    className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 shadow ${isRunning ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50'}`}
+                    className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2 shadow ${isRunning ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-slate-600 hover:bg-slate-500 text-white disabled:opacity-50'}`}
                   >
                     {isRunning ? (
                       <>
@@ -1092,7 +1092,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   <button
                     onClick={runToConvergence}
                     disabled={isRunning || isExploded}
-                    className="px-4 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 font-semibold text-sm rounded-lg transition-colors border border-blue-900/50 disabled:opacity-50"
+                    className="px-4 py-2.5 bg-slate-700/20 hover:bg-slate-700/40 text-slate-300 font-semibold text-sm rounded-lg transition-colors border border-slate-700/50 disabled:opacity-50"
                   >
                     ⚡ Ajustar Rápido
                   </button>
@@ -1132,14 +1132,14 @@ Actualmente, la normalización está **${normalizeStatus}**.
         {/* Education theory section with interactive toggle */}
         <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl mt-4">
           <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-6">
-            <h2 className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-100">
               {showInteractiveTutorial ? "🧮 Guía Matemática Dinámica del Ejercicio" : "🧠 La Computación Moderna y la IA en la Regresión Lineal"}
             </h2>
             <button
               onClick={() => setShowInteractiveTutorial(prev => !prev)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all ${
                 showInteractiveTutorial
-                  ? 'bg-blue-600/10 border-blue-500/50 text-blue-400 font-semibold'
+                  ? 'bg-slate-700/30 border-slate-500/50 text-slate-200 font-semibold'
                   : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
               }`}
               title={showInteractiveTutorial ? "Ver teoría general de computación" : "Ver explicación paso a paso de tu ejercicio"}
@@ -1149,12 +1149,12 @@ Actualmente, la normalización está **${normalizeStatus}**.
             </button>
           </div>
 
-          <div className="prose prose-invert prose-emerald max-w-none 
-            prose-h3:text-lg prose-h3:text-blue-400 prose-h3:mt-8 prose-h3:mb-2
+          <div className="prose prose-invert max-w-none
+            prose-h3:text-lg prose-h3:text-slate-300 prose-h3:mt-8 prose-h3:mb-2
             prose-p:text-slate-300 prose-p:leading-relaxed prose-p:text-sm md:prose-p:text-base prose-p:my-3
             prose-strong:text-slate-200
             prose-li:text-slate-300 prose-li:text-sm md:prose-li:text-base
-            prose-code:text-emerald-400 prose-code:bg-slate-950 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
+            prose-code:text-slate-300 prose-code:bg-slate-950 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
             <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
               {showInteractiveTutorial ? getInteractiveMathExplanation() : computationTheory}
             </ReactMarkdown>

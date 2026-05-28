@@ -191,7 +191,7 @@ Reglas de respuesta:
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 left-6 p-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/30 transition-all transform hover:scale-105 z-50 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
+        className={`fixed bottom-6 left-6 p-4 rounded-full bg-slate-700 hover:bg-slate-600 text-white shadow-lg shadow-slate-700/30 transition-all transform hover:scale-105 z-50 ${isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
       >
         <MessageCircle size={28} />
       </button>
@@ -203,7 +203,7 @@ Reglas de respuesta:
         {/* Header */}
         <div className="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center select-none">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
+            <div className="p-2 bg-slate-700/50 text-slate-300 rounded-lg">
               <Bot size={20} />
             </div>
             <div>
@@ -214,7 +214,7 @@ Reglas de respuesta:
           <div className="flex items-center gap-1">
             <button 
               onClick={() => setShowSettings(prev => !prev)} 
-              className={`p-1.5 rounded-md transition-colors ${showSettings ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
+              className={`p-1.5 rounded-md transition-colors ${showSettings ? 'bg-slate-600/30 text-slate-200 border border-slate-500/30' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700'}`}
               title="Configurar API Key de Gemini"
             >
               <Key size={16} />
@@ -229,10 +229,10 @@ Reglas de respuesta:
         {showSettings && (
           <div className="bg-slate-950 p-4 border-b border-slate-800 text-xs flex flex-col gap-2 relative z-20 select-none">
             <div className="font-semibold text-slate-300 flex items-center gap-1.5">
-              <Key size={14} className="text-blue-400" /> CONFIGURACIÓN DE GEMINI API
+              <Key size={14} className="text-slate-400" /> CONFIGURACIÓN DE GEMINI API
             </div>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              Para usar el chatbot gratis, obtén una llave en <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Google AI Studio</a> y pégala aquí. Tu llave se almacena de forma segura en tu navegador.
+              Para usar el chatbot gratis, obtén una llave en <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:underline">Google AI Studio</a> y pégala aquí. Tu llave se almacena de forma segura en tu navegador.
             </p>
             <div className="bg-amber-950/30 border border-amber-900/50 rounded-lg p-2 text-[10px] text-amber-300 leading-normal">
               ⚠ <strong>Nota de Seguridad:</strong> Las claves configuradas en archivos <code>.env</code> (con prefijo <code>VITE_</code>) se empaquetan en el frontend de producción y quedan visibles en el navegador. Para despliegues públicos, borra la clave del archivo <code>.env</code> y permite que cada estudiante use su clave aquí, o bien implementa un proxy backend (Frontend → Backend → Gemini).
@@ -252,7 +252,7 @@ Reglas de respuesta:
                       localStorage.removeItem('gemini_api_key');
                     }
                   }}
-                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200 pr-8 focus:outline-none focus:border-blue-500 font-mono text-[10px]"
+                  className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200 pr-8 focus:outline-none focus:border-slate-500 font-mono text-[10px]"
                 />
                 <button
                   type="button"
@@ -275,7 +275,7 @@ Reglas de respuesta:
               )}
             </div>
             {import.meta.env.VITE_GEMINI_API_KEY && !customApiKey && (
-              <div className="text-[9px] text-emerald-400 font-medium bg-emerald-950/20 border border-emerald-900/40 rounded p-1 text-center mt-0.5">
+              <div className="text-[9px] text-slate-300 font-medium bg-slate-800/40 border border-slate-700/40 rounded p-1 text-center mt-0.5">
                 ✓ Usando API Key preconfigurada (.env)
               </div>
             )}
@@ -286,10 +286,10 @@ Reglas de respuesta:
         <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-4">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'self-end flex-row-reverse' : 'self-start'}`}>
-              <div className={`p-2 rounded-lg shrink-0 h-fit ${msg.role === 'user' ? 'bg-blue-600' : 'bg-slate-800'}`}>
-                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} className="text-blue-400" />}
+              <div className={`p-2 rounded-lg shrink-0 h-fit ${msg.role === 'user' ? 'bg-slate-600' : 'bg-slate-800'}`}>
+                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} className="text-slate-300" />}
               </div>
-              <div className={`p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'} prose prose-invert max-w-none overflow-x-auto break-words prose-p:leading-snug prose-pre:bg-slate-950`}>
+              <div className={`p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-slate-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'} prose prose-invert max-w-none overflow-x-auto break-words prose-p:leading-snug prose-pre:bg-slate-950`}>
                 <ReactMarkdown
                   remarkPlugins={[remarkMath]}
                   rehypePlugins={[rehypeKatex]}
@@ -302,7 +302,7 @@ Reglas de respuesta:
           {isLoading && (
             <div className="flex gap-3 self-start max-w-[85%]">
               <div className="p-2 rounded-lg bg-slate-800 shrink-0 h-fit">
-                <Bot size={16} className="text-blue-400" />
+                <Bot size={16} className="text-slate-300" />
               </div>
               <div className="p-4 rounded-xl bg-slate-800 border border-slate-700 rounded-tl-none flex items-center gap-1">
                 <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></div>
@@ -322,12 +322,12 @@ Reglas de respuesta:
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-blue-500 transition-colors"
+            className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-slate-500 transition-colors"
           />
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="p-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg transition-colors flex items-center justify-center"
+            className="p-2 bg-slate-600 hover:bg-slate-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg transition-colors flex items-center justify-center"
           >
             <Send size={18} />
           </button>

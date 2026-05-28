@@ -292,10 +292,10 @@ export const CanvasChart: React.FC<CanvasChartProps> = ({ data, m, b, xLabel, yL
           className="absolute bg-slate-900/95 border border-slate-700 text-slate-100 rounded-lg p-2 text-xs shadow-xl pointer-events-none z-10 font-mono"
           style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }}
         >
-          <div className="font-sans font-semibold text-blue-400 mb-0.5">Punto Seleccionado</div>
+          <div className="font-sans font-semibold text-slate-200 mb-0.5">Punto Seleccionado</div>
           <div>X: {hoveredPoint.x.toLocaleString(undefined, { maximumFractionDigits: 3 })}</div>
           <div>Y: {hoveredPoint.y.toLocaleString(undefined, { maximumFractionDigits: 3 })}</div>
-          <div className="text-emerald-400 mt-0.5">
+          <div className="text-slate-300 mt-0.5">
             Pred: {(m * hoveredPoint.x + b).toLocaleString(undefined, { maximumFractionDigits: 3 })}
           </div>
           <div className="text-rose-400">

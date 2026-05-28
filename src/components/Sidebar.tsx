@@ -31,10 +31,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ data, setData, m, setM, b, set
   return (
     <aside className="w-full md:w-80 bg-slate-800 p-6 flex flex-col gap-6 border-r border-slate-700 overflow-y-auto shrink-0">
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+        <div className="p-2 bg-slate-700/50 rounded-lg text-slate-300">
           <Settings size={24} />
         </div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold text-slate-100">
           Linear Sim
         </h1>
       </div>
@@ -49,7 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ data, setData, m, setM, b, set
             step="0.1"
             value={m}
             onChange={(e) => setM(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition-colors"
           />
         </div>
 
@@ -60,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ data, setData, m, setM, b, set
             step="0.1"
             value={b}
             onChange={(e) => setB(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition-colors"
           />
         </div>
 
@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ data, setData, m, setM, b, set
             step="0.001"
             value={learningRate}
             onChange={(e) => setLearningRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition-colors"
           />
         </div>
       </div>
@@ -81,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ data, setData, m, setM, b, set
           <h2 className="text-lg font-semibold text-slate-200">Datos (X, Y)</h2>
           <button 
             onClick={handleAddPoint}
-            className="p-1 hover:bg-slate-700 rounded-md text-slate-400 hover:text-emerald-400 transition-colors"
+            className="p-1 hover:bg-slate-700 rounded-md text-slate-400 hover:text-slate-200 transition-colors"
           >
             <Plus size={18} />
           </button>
@@ -94,13 +94,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ data, setData, m, setM, b, set
                 type="number"
                 value={point.x}
                 onChange={(e) => handleUpdatePoint(index, 'x', e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-slate-500 transition-colors"
               />
               <input
                 type="number"
                 value={point.y}
                 onChange={(e) => handleUpdatePoint(index, 'y', e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none focus:border-slate-500 transition-colors"
               />
               <button 
                 onClick={() => handleRemovePoint(index)}

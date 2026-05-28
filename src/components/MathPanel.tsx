@@ -20,8 +20,8 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, data, m, b, learning
       
       {/* PREDICTIONS STEP */}
       {step >= Step.PREDICTIONS && (
-        <div className={`rounded-xl p-4 border transition-colors ${step === Step.PREDICTIONS ? 'bg-blue-500/10 border-blue-500/50' : 'bg-slate-900/50 border-slate-700'}`}>
-          <h3 className="text-blue-400 font-semibold mb-2">1. Predicciones (ŷ)</h3>
+        <div className={`rounded-xl p-4 border transition-colors ${step === Step.PREDICTIONS ? 'bg-slate-700/30 border-slate-600/50' : 'bg-slate-900/50 border-slate-700'}`}>
+          <h3 className="text-slate-200 font-semibold mb-2">1. Predicciones (ŷ)</h3>
           <p className="text-sm text-slate-400 mb-3">Fórmula: ŷ = mx + b</p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
@@ -29,7 +29,7 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, data, m, b, learning
                 <tr className="text-slate-500 border-b border-slate-700">
                   <th className="pb-2">X</th>
                   <th className="pb-2">Y</th>
-                  <th className="pb-2 text-blue-400">ŷ</th>
+                  <th className="pb-2 text-slate-300">ŷ</th>
                 </tr>
               </thead>
               <tbody>
@@ -37,7 +37,7 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, data, m, b, learning
                   <tr key={i} className="border-b border-slate-800">
                     <td className="py-1.5">{d.x}</td>
                     <td className="py-1.5">{d.y}</td>
-                    <td className="py-1.5 text-blue-400 font-medium">{calculations.predictions[i].toFixed(2)}</td>
+                    <td className="py-1.5 text-slate-300 font-medium">{calculations.predictions[i].toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -78,28 +78,28 @@ export const MathPanel: React.FC<MathPanelProps> = ({ step, data, m, b, learning
 
       {/* MSE STEP */}
       {step >= Step.MSE && (
-        <div className={`rounded-xl p-4 border transition-colors ${step === Step.MSE ? 'bg-purple-500/10 border-purple-500/50' : 'bg-slate-900/50 border-slate-700'}`}>
-          <h3 className="text-purple-400 font-semibold mb-2">3. Error Cuadrático Medio</h3>
+        <div className={`rounded-xl p-4 border transition-colors ${step === Step.MSE ? 'bg-slate-700/30 border-slate-600/50' : 'bg-slate-900/50 border-slate-700'}`}>
+          <h3 className="text-slate-200 font-semibold mb-2">3. Error Cuadrático Medio</h3>
           <p className="text-sm text-slate-400 mb-2">Promedio de los errores al cuadrado (J).</p>
           <div className="bg-slate-950 p-3 rounded-lg flex items-center justify-center border border-slate-800">
-            <span className="text-xl font-bold text-purple-400">J = {calculations.mse.toFixed(4)}</span>
+            <span className="text-xl font-bold text-slate-200">J = {calculations.mse.toFixed(4)}</span>
           </div>
         </div>
       )}
 
       {/* GRADIENTS STEP */}
       {step >= Step.GRADIENTS && (
-        <div className={`rounded-xl p-4 border transition-colors ${step === Step.GRADIENTS ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-slate-900/50 border-slate-700'}`}>
-          <h3 className="text-emerald-400 font-semibold mb-2">4. Gradientes (Derivadas)</h3>
+        <div className={`rounded-xl p-4 border transition-colors ${step === Step.GRADIENTS ? 'bg-slate-700/30 border-slate-600/50' : 'bg-slate-900/50 border-slate-700'}`}>
+          <h3 className="text-slate-200 font-semibold mb-2">4. Gradientes (Derivadas)</h3>
           <p className="text-sm text-slate-400 mb-2">Calculamos la pendiente de la curva de error respecto a m y b.</p>
           <div className="space-y-2">
             <div className="bg-slate-950 p-2 rounded border border-slate-800 flex justify-between">
               <span className="text-slate-400">∂J/∂m =</span>
-              <span className="text-emerald-400 font-medium">{calculations.gradM.toFixed(4)}</span>
+              <span className="text-slate-300 font-medium">{calculations.gradM.toFixed(4)}</span>
             </div>
             <div className="bg-slate-950 p-2 rounded border border-slate-800 flex justify-between">
               <span className="text-slate-400">∂J/∂b =</span>
-              <span className="text-emerald-400 font-medium">{calculations.gradB.toFixed(4)}</span>
+              <span className="text-slate-300 font-medium">{calculations.gradB.toFixed(4)}</span>
             </div>
           </div>
         </div>

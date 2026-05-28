@@ -28,29 +28,29 @@ function App() {
       {/* Top Main Navbar */}
       <nav className="w-full bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-10 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
+          <div className="p-2 bg-slate-700/50 text-slate-300 rounded-lg">
              <Activity size={24} />
           </div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent hidden sm:block">
+          <h1 className="text-xl font-bold text-slate-100 hidden sm:block">
             Simulador de Regresión Lineal
           </h1>
         </div>
         <div className="flex gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800 overflow-x-auto max-w-full">
           <button 
             onClick={() => setActiveTab('simulator')}
-            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'simulator' ? 'bg-slate-800 text-blue-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'simulator' ? 'bg-slate-700 text-slate-100 shadow' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <Activity size={18} /> Simulador
           </button>
           <button 
             onClick={() => setActiveTab('theory')}
-            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'theory' ? 'bg-slate-800 text-emerald-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'theory' ? 'bg-slate-700 text-slate-100 shadow' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <BookOpen size={18} /> Teoría y Casos Reales
           </button>
           <button 
             onClick={() => setActiveTab('massive')}
-            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'massive' ? 'bg-slate-800 text-indigo-400 shadow' : 'text-slate-400 hover:text-slate-200'}`}
+            className={`px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all shrink-0 ${activeTab === 'massive' ? 'bg-slate-700 text-slate-100 shadow' : 'text-slate-400 hover:text-slate-200'}`}
           >
             <Cpu size={18} /> Gran Escala (Miles de Datos)
           </button>
@@ -78,10 +78,10 @@ function App() {
                 <div className="flex items-center gap-4">
                   <div>
                     <h2 className="text-xl font-bold flex items-center gap-2">
-                      <span className="text-blue-400">Iteración:</span> {lr.iteration}
+                      <span className="text-slate-200">Iteración:</span> {lr.iteration}
                     </h2>
                     <p className="text-sm text-slate-400 font-medium">
-                      Paso actual: <span className="text-emerald-400">{StepName[lr.currentStep]}</span>
+                      Paso actual: <span className="text-slate-300">{StepName[lr.currentStep]}</span>
                     </p>
                   </div>
                 </div>
@@ -96,14 +96,14 @@ function App() {
                   </button>
                   <button 
                     onClick={lr.nextStep} 
-                    className="px-4 py-2 flex items-center gap-2 text-sm font-medium rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors shadow-lg shadow-blue-500/20"
+                    className="px-4 py-2 flex items-center gap-2 text-sm font-medium rounded-md bg-slate-600 hover:bg-slate-500 text-white transition-colors shadow-lg shadow-slate-500/20"
                   >
                     Siguiente <SkipForward size={16} />
                   </button>
                   <div className="w-px bg-slate-700 mx-1 shrink-0"></div>
                   <button 
                     onClick={lr.runFullIteration} 
-                    className="px-3 py-2 flex items-center gap-2 text-sm font-medium rounded-md hover:bg-emerald-500/20 text-emerald-400 transition-colors"
+                    className="px-3 py-2 flex items-center gap-2 text-sm font-medium rounded-md hover:bg-slate-600/30 text-slate-300 transition-colors"
                   >
                     <Play size={16} /> Iteración
                   </button>
