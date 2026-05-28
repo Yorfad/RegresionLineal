@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { DataPoint } from '../hooks/useLinearRegression';
-import { Settings, Plus, Trash2, Lock, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react';
+import { Settings, Plus, Trash2, Lock, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SidebarProps {
   data: DataPoint[];
