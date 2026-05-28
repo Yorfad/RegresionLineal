@@ -105,6 +105,7 @@ interface LargeScaleSimulatorProps {
 }
 
 export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStateChange }) => {
+  const [testXMassive, setTestXMassive] = useState<string>('');
   const [datasetType, setDatasetType] = useState<'seattle' | 'co2' | 'salaries' | 'synthetic' | 'custom'>('seattle');
   
   // Custom synthetic data config
@@ -990,11 +991,54 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg">
-                  <div className="text-xs font-semibold text-slate-400">MODELO AJUSTADO:</div>
-                  <div className="text-sm font-mono font-bold text-slate-300">
-                    {isExploded ? 'y = NaN * x + NaN' : `y = ${mOrig.toFixed(4)}x + ${bOrig.toFixed(2)}`}
+                <div className="flex flex-wrap items-center gap-3">
+                  {/* Ecuación */}
+                  <div className="bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg">
+                    <div className="text-xs font-semibold text-slate-500 mb-0.5">MODELO AJUSTADO</div>
+                    <div className="text-sm font-mono font-bold text-slate-200">
+                      {isExploded ? 'y = NaN · x + NaN' : `ŷ = ${mOrig.toFixed(4)} · x + ${bOrig.toFixed(4)}`}
+                    </div>
+                    {!isExploded && (
+                      <div className="flex gap-5 mt-2">
+                        <div>
+                          <span className="text-xs text-slate-500 block leading-none mb-0.5">pendiente</span>
+                          <span className="font-mono font-bold text-slate-200">m = {mOrig.toFixed(4)}</span>
+                        </div>
+                        <div className="w-px bg-slate-800" />
+                        <div>
+                          <span className="text-xs text-slate-500 block leading-none mb-0.5">intercepto (y en x=0)</span>
+                          <span className="font-mono font-bold text-slate-200">b = {bOrig.toFixed(4)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
+                  {/* Predicción */}
+                  {!isExploded && (
+                    <div className="bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg flex items-center gap-3">
+                      <div>
+                        <div className="text-xs text-slate-500 mb-1">Probar X =</div>
+                        <input
+                          type="number"
+                          value={testXMassive}
+                          onChange={(e) => setTestXMassive(e.target.value)}
+                          placeholder={xLabel.split(' ')[0]}
+                          className="w-24 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-sm text-slate-200 font-mono focus:outline-none focus:border-slate-500"
+                        />
+                      </div>
+                      <div className="text-slate-600">→</div>
+                      <div>
+                        <div className="text-xs text-slate-500 mb-1">ŷ ({yLabel.split(' ')[0]})</div>
+                        {testXMassive !== '' && !isNaN(Number(testXMassive)) ? (
+                          <div>
+                            <div className="font-mono font-bold text-slate-100 text-sm">{(mOrig * Number(testXMassive) + bOrig).toFixed(4)}</div>
+                            <div className="text-[10px] text-slate-600 font-mono">{mOrig.toFixed(4)}·{testXMassive} + {bOrig.toFixed(4)}</div>
+                          </div>
+                        ) : (
+                          <div className="text-slate-600 font-mono">–</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

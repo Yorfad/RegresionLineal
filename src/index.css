@@ -35,3 +35,15 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* KaTeX display-mode formulas scroll horizontally instead of breaking layout */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+/* Prevent inline KaTeX from expanding flex containers */
+.katex {
+  max-width: 100%;
+}

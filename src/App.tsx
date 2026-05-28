@@ -11,6 +11,7 @@ import { Play, SkipForward, SkipBack, RotateCcw, BookOpen, Activity, Cpu } from 
 function App() {
   const lr = useLinearRegression();
   const [activeTab, setActiveTab] = useState<'simulator' | 'theory' | 'massive'>('simulator');
+  const [testX, setTestX] = useState<string>('');
   const [massiveState, setMassiveState] = useState({
     datasetType: 'seattle' as 'seattle' | 'co2' | 'salaries' | 'synthetic' | 'custom',
     iteration: 0,
@@ -117,8 +118,75 @@ function App() {
                 </div>
               </header>
 
+              {/* Widget: Usar el modelo */}
+              {(() => {
+                const mNum = Number(lr.m) || 0;
+                const bNum = Number(lr.b) || 0;
+                const xNum = testX === '' ? null : Number(testX);
+                const pred = xNum !== null && !isNaN(xNum) ? mNum * xNum + bNum : null;
+                return (
+                  <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 shrink-0">
+                    <div className="flex flex-wrap gap-6 items-start justify-between">
+                      {/* Ecuación ajustada */}
+                      <div>
+                        <div className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1.5">Modelo ajustado</div>
+                        <div className="font-mono text-base text-slate-200 mb-2">
+                          ŷ = <span className="text-white font-bold">{mNum.toFixed(4)}</span> · x + <span className="text-white font-bold">{bNum.toFixed(4)}</span>
+                        </div>
+                        <div className="flex gap-4 text-xs text-slate-500">
+                          <span><span className="text-slate-300 font-semibold">m = {mNum.toFixed(4)}</span> — pendiente (cuánto sube ŷ por cada unidad de x)</span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-0.5">
+                          <span><span className="text-slate-300 font-semibold">b = {bNum.toFixed(4)}</span> — intercepto (valor de ŷ cuando x = 0, donde la recta toca el eje Y)</span>
+                        </div>
+                      </div>
+                      {/* Input de prueba */}
+                      <div className="flex items-end gap-3">
+                        <div>
+                          <label className="text-xs text-slate-500 font-semibold uppercase tracking-wide block mb-1.5">Probar con X =</label>
+                          <input
+                            type="number"
+                            value={testX}
+                            onChange={(e) => setTestX(e.target.value)}
+                            placeholder="ej: 3"
+                            className="w-28 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 font-mono text-sm focus:outline-none focus:border-slate-500"
+                          />
+                        </div>
+                        <div className="text-slate-600 pb-2">→</div>
+                        <div>
+                          <div className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1.5">Resultado ŷ =</div>
+                          {pred !== null ? (
+                            <div>
+                              <div className="font-mono font-bold text-lg text-slate-100">{pred.toFixed(4)}</div>
+                              <div className="text-[11px] text-slate-500 font-mono">{mNum.toFixed(4)}·{testX} + {bNum.toFixed(4)}</div>
+                            </div>
+                          ) : (
+                            <div className="font-mono text-slate-600 text-lg">–</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Chatbot — inline, desplegable hacia abajo */}
+              <Chatbot
+                activeTab={activeTab}
+                iteration={lr.iteration}
+                step={lr.currentStep}
+                m={lr.m}
+                b={lr.b}
+                learningRate={lr.learningRate}
+                mse={lr.calculations?.mse || 0}
+                data={lr.data}
+                gradM={lr.calculations?.gradM}
+                gradB={lr.calculations?.gradB}
+                massiveState={massiveState}
+              />
+
               {/* Chart Area */}
-              <div className="flex-1 flex flex-col min-h-[400px]">
+              <div className="flex-1 flex flex-col min-h-[300px]">
                 <MainChart data={lr.data} m={lr.m} b={lr.b} />
               </div>
             </main>
@@ -139,17 +207,21 @@ function App() {
         )}
       </div>
 
-      <Chatbot 
-        activeTab={activeTab}
-        iteration={lr.iteration}
-        step={lr.currentStep}
-        m={lr.m}
-        b={lr.b}
-        learningRate={lr.learningRate}
-        mse={lr.calculations?.mse || 0}
-        data={lr.data}
-        massiveState={massiveState}
-      />
+      {/* Chatbot popup — solo visible en Teoría y Gran Escala */}
+      {activeTab !== 'simulator' && (
+        <Chatbot
+          mode="popup"
+          activeTab={activeTab}
+          iteration={lr.iteration}
+          step={lr.currentStep}
+          m={lr.m}
+          b={lr.b}
+          learningRate={lr.learningRate}
+          mse={lr.calculations?.mse || 0}
+          data={lr.data}
+          massiveState={massiveState}
+        />
+      )}
     </div>
   );
 }

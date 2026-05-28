@@ -74,14 +74,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-full md:w-80 bg-slate-800 p-5 flex flex-col gap-5 border-r border-slate-700 overflow-y-auto shrink-0">
+    <aside className="w-full md:w-80 bg-slate-800 p-6 flex flex-col gap-6 border-r border-slate-700 overflow-y-auto shrink-0">
 
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="p-2 bg-slate-700/50 rounded-lg text-slate-300">
-          <Settings size={22} />
+          <Settings size={24} />
         </div>
-        <h1 className="text-xl font-bold text-slate-100">Linear Sim</h1>
+        <h1 className="text-2xl font-bold text-slate-100">Linear Sim</h1>
       </div>
 
       {/* Lock banner */}
@@ -93,11 +93,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* Parámetros iniciales */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Parámetros Iniciales</h2>
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-slate-200">Parámetros Iniciales</h2>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-400">Pendiente inicial (m)</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-400">Pendiente inicial (m)</label>
           <input
             type="number"
             step="0.1"
@@ -108,8 +108,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-400">Intercepto inicial (b)</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-400">Intercepto inicial (b)</label>
           <input
             type="number"
             step="0.1"
@@ -120,8 +120,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-400">Learning Rate (α)</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-slate-400">Learning Rate (α)</label>
           <input
             type="number"
             step="0.001"
@@ -134,25 +134,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Datos X, Y */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wide">Datos (X, Y)</h2>
+          <h2 className="text-lg font-semibold text-slate-200">Datos (X, Y)</h2>
           <button
             onClick={handleAddPoint}
             disabled={locked}
             className="p-1 hover:bg-slate-700 rounded-md text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <Plus size={16} />
+            <Plus size={18} />
           </button>
         </div>
 
-        <div className="flex text-[11px] text-slate-500 px-1 gap-2">
-          <span className="flex-1 text-center">x</span>
-          <span className="flex-1 text-center">y</span>
-          <span className="w-8" />
-        </div>
-
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {data.map((point, index) => (
             <div key={index} className="flex gap-2 items-center">
               <input
@@ -160,21 +154,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 value={point.x}
                 disabled={locked}
                 onChange={(e) => handleUpdatePoint(index, 'x', e.target.value)}
-                className={`flex-1 bg-slate-900 border rounded-lg px-2 py-1.5 text-sm text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500'}`}
+                className={`w-full bg-slate-900 border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500'}`}
               />
               <input
                 type="number"
                 value={point.y}
                 disabled={locked}
                 onChange={(e) => handleUpdatePoint(index, 'y', e.target.value)}
-                className={`flex-1 bg-slate-900 border rounded-lg px-2 py-1.5 text-sm text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500'}`}
+                className={`w-full bg-slate-900 border rounded-lg px-3 py-1.5 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500'}`}
               />
               <button
                 onClick={() => handleRemovePoint(index)}
                 disabled={locked}
-                className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="p-2 text-slate-500 hover:text-rose-400 hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Trash2 size={14} />
+                <Trash2 size={16} />
               </button>
             </div>
           ))}
@@ -183,38 +177,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Pegar datos */}
       {!locked && (
-        <div className="border border-slate-700 rounded-xl overflow-hidden">
-          <button
-            onClick={() => { setShowPaste(p => !p); setPasteError(''); }}
-            className="w-full flex items-center justify-between px-3 py-2.5 text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-700/40 transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <ClipboardList size={15} />
-              Pegar datos (CSV)
-            </span>
-            {showPaste ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-200">Pegar Datos</h2>
+            <button
+              onClick={() => { setShowPaste(p => !p); setPasteError(''); }}
+              className="p-1 hover:bg-slate-700 rounded-md text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              {showPaste ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </button>
+          </div>
 
           {showPaste && (
-            <div className="p-3 border-t border-slate-700 space-y-2 bg-slate-900/50">
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Pega pares <code className="text-slate-300">x,y</code> separados por coma, espacio o salto de línea.
-                <br />
-                Ej: <code className="text-slate-300">1,2 3,4 5,6</code> o uno por línea.
+            <div className="space-y-2">
+              <p className="text-sm text-slate-400">
+                Pega pares <code className="bg-slate-900 px-1 rounded text-slate-300">x,y</code> separados por coma, espacio o salto de línea.
               </p>
               <textarea
-                rows={5}
+                rows={4}
                 value={pasteText}
                 onChange={(e) => { setPasteText(e.target.value); setPasteError(''); }}
                 placeholder={'1,2\n3,4\n5,6'}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-slate-500 resize-none"
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-slate-200 focus:outline-none focus:border-slate-500 resize-none"
               />
               {pasteError && (
-                <p className="text-[11px] text-rose-400">{pasteError}</p>
+                <p className="text-xs text-rose-400">{pasteError}</p>
               )}
               <button
                 onClick={handleApplyPaste}
-                className="w-full bg-slate-600 hover:bg-slate-500 text-white text-xs font-semibold py-2 rounded-lg transition-colors"
+                className="w-full bg-slate-600 hover:bg-slate-500 text-white text-sm font-semibold py-2 rounded-lg transition-colors"
               >
                 Aplicar datos
               </button>
