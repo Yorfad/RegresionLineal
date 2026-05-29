@@ -99,9 +99,61 @@ Es decir, el algoritmo ha aprendido matemáticamente la regla perfecta: **la cal
 
 // theoryContentBottom refactored to JSX components below.
 
+type CaseId = 'tutorial' | 'hubble' | 'galton' | 'capm';
+
+const CASE_INFO: Record<CaseId, {
+  label: string;
+  xLabel: string;
+  yLabel: string;
+  exactM: number;
+  exactB: number;
+  exampleX: number;
+  exampleXLabel: string;
+}> = {
+  tutorial: {
+    label: 'Horas de estudio vs Calificación',
+    xLabel: 'horas estudiadas',
+    yLabel: 'calificación',
+    exactM: 2,
+    exactB: 0,
+    exampleX: 4.5,
+    exampleXLabel: '4.5 horas',
+  },
+  hubble: {
+    label: 'Expansión del universo (Hubble)',
+    xLabel: 'distancia (Mpc)',
+    yLabel: 'velocidad (km/s)',
+    exactM: 420.84,
+    exactB: 69.13,
+    exampleX: 1.5,
+    exampleXLabel: '1.5 Mpc',
+  },
+  galton: {
+    label: 'Estatura padres vs hijos (Galton)',
+    xLabel: 'estatura padres (pulg.)',
+    yLabel: 'estatura hijos (pulg.)',
+    exactM: 0.52,
+    exactB: 32.8,
+    exampleX: 71,
+    exampleXLabel: '71 pulgadas',
+  },
+  capm: {
+    label: 'Riesgo financiero CAPM',
+    xLabel: 'retorno mercado (%)',
+    yLabel: 'retorno acción (%)',
+    exactM: 1.5,
+    exactB: 0,
+    exampleX: 3,
+    exampleXLabel: 'mercado +3%',
+  },
+};
+
 export const TheoryPage: React.FC = () => {
   const lr = useLinearRegression();
   const [tutorialStep, setTutorialStep] = useState(0);
+  const [activeCase, setActiveCase] = useState<CaseId>('tutorial');
+  const [solvedAnalytically, setSolvedAnalytically] = useState(false);
+  const [testXTheory, setTestXTheory] = useState('');
 
   // Preload the exact "hours studied" dataset and learning rate on mount
   useEffect(() => {
@@ -130,64 +182,117 @@ export const TheoryPage: React.FC = () => {
     }
   }, [lr.data.length, lr.learningRate, lr.iteration, tutorialStep]);
 
-  const loadCase = (data: {x: number, y: number}[], lrValue: number) => {
+  const loadCase = (caseId: CaseId, data: {x: number, y: number}[], lrValue: number) => {
     lr.reset();
     lr.setData(data);
     lr.setLearningRate(lrValue);
-    setTutorialStep(3); // To not trigger tutorial popups
+    setActiveCase(caseId);
+    setSolvedAnalytically(false);
+    setTestXTheory('');
+    setTutorialStep(3);
     document.getElementById('simulator-lab')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const getDynamicLaboratoryExplanation = () => {
-    const currentM = Number(lr.m) || 0;
-    const currentB = Number(lr.b) || 0;
-    const currentMse = lr.calculations?.mse || 0;
-    const it = lr.iteration;
+    const mNum = Number(lr.m) || 0;
+    const bNum = Number(lr.b) || 0;
+    const mse  = lr.calculations?.mse || 0;
+    const it   = lr.iteration;
+    const fm   = parseFloat(mNum.toFixed(4));
+    const fb   = parseFloat(bNum.toFixed(4));
+    const info = CASE_INFO[activeCase];
+    const predExample = parseFloat((mNum * info.exampleX + bNum).toFixed(4));
 
-    let title = "Progreso de Entrenamiento";
-    let text = "";
+    // ── Solución analítica exacta ──────────────────────────────────────
+    if (solvedAnalytically) {
+      return {
+        title: 'Solución Exacta — Ecuaciones Normales',
+        text: `El botón **"Resolver (exacto)"** no usa gradiente: calcula directamente la solución óptima con las Ecuaciones Normales en un solo paso matemático.
 
-    if (it === 1) {
-      title = "Primera Iteración Completada";
-      text = `El simulador ha ejecutado los 7 pasos del panel derecho y ha dado su primer paso de aprendizaje:
-* **Paso 1 (ŷ):** Predijo $\\hat{y}_i = 0 \\cdot x_i + 0 = 0$ para todos los puntos.
-* **Pasos 2-3 (errores):** Calculó $e_i = 0 - y_i$ y sus cuadrados.
-* **Paso 4 (J):** $J = 18.6700$ — el error inicial con $m=0, b=0$.
-* **Pasos 5-6 (matrices y gradientes):** $\\partial J / \\partial m = -18.667$, $\\partial J / \\partial b = -8.00$.
-* **Paso 7 (actualización):** $m$ cambió de $0.00$ a $${currentM.toFixed(4)}$ y $b$ a $${currentB.toFixed(4)}$.
+**Resultado:**
+* $m = ${fm}$ — ${info.xLabel} explica el cambio en ${info.yLabel}
+* $b = ${fb}$ — valor base cuando ${info.xLabel} = 0
+* **MSE = ${parseFloat(mse.toFixed(6))}** — error residual mínimo posible
 
-Compara con los cálculos manuales de la guía — los valores son exactamente iguales.`;
-    } else if (Math.abs(currentM - 2) <= 0.05 && Math.abs(currentB) <= 0.05) {
-      title = "Modelo Convergido";
-      text = `En la iteración ${it}, el modelo encontró la solución optima:
-* **Pendiente ($m$):** $${currentM.toFixed(4)} \\approx 2.00$ — la calificación es el doble de las horas de estudio.
-* **Intercepto ($b$):** $${currentB.toFixed(4)} \\approx 0.00$ — con 0 horas estudiadas, la predicción es 0 puntos.
-* **Error (MSE):** $${currentMse.toFixed(6)}$ — prácticamente cero.
-* **Predicción para 4.5 horas:** $\\hat{y} = 2.00 \\times 4.5 + 0.00 = 9.0$ puntos.
+**Predicción de ejemplo — ${info.exampleXLabel}:**
+$$\\hat{y} = ${fm} \\times ${info.exampleX} + ${fb} = ${predExample}$$
 
-La línea cruza exactamente por los tres puntos. Usa "Resolver" para llegar aquí instantáneamente con la solución analítica exacta.`;
-    } else {
-      title = `Entrenando (Iteración ${it})`;
-      const distM = Math.abs(2.0 - currentM);
-
-      if (distM > 0.8) {
-        text = `El modelo ajusta sus parámetros en la iteración ${it}:
-* **Pendiente actual ($m$):** $${currentM.toFixed(4)}$ (subiendo hacia $2.00$).
-* **Intercepto actual ($b$):** $${currentB.toFixed(4)}$ (ajustándose hacia $0.00$).
-* **Error (MSE):** $${currentMse.toFixed(4)}$.
-
-Cada iteración repite los 7 pasos del panel. Haz clic en "50 Épocas" para acelerar o en "Resolver" para la solución exacta instantánea.`;
-      } else {
-        text = `El modelo está muy cerca de la solución en la iteración ${it}:
-* **Pendiente actual ($m$):** $${currentM.toFixed(4)}$ (objetivo: $2.00$).
-* **Intercepto actual ($b$):** $${currentB.toFixed(4)}$ (objetivo: $0.00$).
-* **Error (MSE):** $${currentMse.toFixed(6)}$.
-
-El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz clic en "Resolver" para la solución analítica exacta.`;
-      }
+Puedes ingresar cualquier valor de X en el campo "Probar modelo" del laboratorio para obtener la predicción.`,
+      };
     }
 
-    return { title, text };
+    // ── Caso tutorial: horas de estudio ───────────────────────────────
+    if (activeCase === 'tutorial') {
+      if (it === 1) {
+        return {
+          title: 'Primera Iteración Completada',
+          text: `El simulador ejecutó los 7 pasos del panel derecho por primera vez:
+* **Paso 1 (ŷ):** Con $m=0, b=0$, predijo $\\hat{y}=0$ para todos.
+* **Paso 4 (J):** $J = 18.67$ — error alto al inicio.
+* **Pasos 6-7 (gradientes y actualización):** $m$ pasó de $0$ a $${fm}$, $b$ de $0$ a $${fb}$.
+
+Compara estos valores con los cálculos manuales de la guía de arriba.`,
+        };
+      }
+      if (Math.abs(mNum - 2) <= 0.05 && Math.abs(bNum) <= 0.05) {
+        return {
+          title: 'Modelo Convergido',
+          text: `En la iteración **${it}** el modelo encontró la solución:
+* $m = ${fm} \\approx 2.00$ — la calificación es el doble de las horas.
+* $b = ${fb} \\approx 0.00$ — sin horas de estudio, la predicción es 0.
+* **MSE = ${parseFloat(mse.toFixed(6))}** — prácticamente cero.
+* **Para ${info.exampleXLabel}:** $\\hat{y} = ${fm} \\times ${info.exampleX} + ${fb} = ${predExample}$ puntos.`,
+        };
+      }
+      return {
+        title: `Entrenando — Iteración ${it}`,
+        text: `$m = ${fm}$ (objetivo $2.00$) · $b = ${fb}$ (objetivo $0.00$) · **MSE = ${parseFloat(mse.toFixed(4))}**
+
+Cada clic en "Siguiente Paso" muestra uno de los 7 cálculos del panel. Usa "50 Épocas" para acelerar o "Resolver (exacto)" para la solución inmediata.`,
+      };
+    }
+
+    // ── Casos reales ──────────────────────────────────────────────────
+    const exactM = info.exactM;
+    const exactB = info.exactB;
+    const distM  = Math.abs(mNum - exactM);
+
+    const statusLine = `$m = ${fm}$ · $b = ${fb}$ · **MSE = ${parseFloat(mse.toFixed(2))}**`;
+
+    if (it === 0) {
+      return {
+        title: `${info.label} — Listo para entrenar`,
+        text: `Dataset cargado. Parámetros iniciales: $m=0, b=0$.
+
+Solución esperada al converger: $m \\approx ${parseFloat(exactM.toFixed(2))}$, $b \\approx ${parseFloat(exactB.toFixed(2))}$.
+
+Haz clic en **"Resolver (exacto)"** para obtener la solución óptima de inmediato, o usa los botones de épocas para verlo aprender paso a paso.`,
+      };
+    }
+
+    if (distM < Math.abs(exactM) * 0.05) {
+      return {
+        title: `${info.label} — Convergido`,
+        text: `El modelo encontró la solución en la iteración **${it}**:
+${statusLine}
+
+**Predicción — ${info.exampleXLabel}:**
+$$\\hat{y} = ${fm} \\times ${info.exampleX} + ${fb} = ${predExample}$$
+
+Ingresa cualquier valor de ${info.xLabel} en el campo "Probar modelo" del laboratorio.`,
+      };
+    }
+
+    return {
+      title: `${info.label} — Iteración ${it}`,
+      text: `${statusLine}
+
+Objetivo: $m \\approx ${parseFloat(exactM.toFixed(2))}$, $b \\approx ${parseFloat(exactB.toFixed(2))}$.
+
+Predicción actual para ${info.exampleXLabel}: $\\hat{y} = ${predExample}$ ${info.yLabel}.
+
+Usa **"Resolver (exacto)"** para llegar a la solución óptima en un solo paso.`,
+    };
   };
 
   return (
@@ -259,9 +364,9 @@ El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz cli
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <button 
-                      onClick={lr.prevStep} 
-                      disabled={lr.currentStep === 0 && lr.iteration === 1} 
+                    <button
+                      onClick={lr.prevStep}
+                      disabled={lr.currentStep === 0 && lr.iteration === 0}
                       className="p-2 bg-slate-800 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-50 transition-colors"
                       title="Paso Anterior"
                     >
@@ -298,24 +403,24 @@ El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz cli
                     <button
                       onClick={() => {
                         lr.solveAnalytically();
+                        setSolvedAnalytically(true);
                         setTutorialStep(3);
                       }}
-                      className="px-3 py-2 bg-slate-700/20 hover:bg-slate-700/40 text-slate-300 border border-slate-700/50 font-semibold text-sm rounded transition-colors animate-pulse"
+                      className="px-3 py-2 bg-slate-700/20 hover:bg-slate-700/40 text-slate-300 border border-slate-700/50 font-semibold text-sm rounded transition-colors"
                     >
                       Resolver (exacto)
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => {
                         lr.reset();
-                        lr.setData([
-                          { x: 1, y: 2 },
-                          { x: 2, y: 4 },
-                          { x: 3, y: 6 }
-                        ]);
+                        lr.setData([{ x: 1, y: 2 }, { x: 2, y: 4 }, { x: 3, y: 6 }]);
                         lr.setLearningRate(0.01);
+                        setActiveCase('tutorial');
+                        setSolvedAnalytically(false);
+                        setTestXTheory('');
                         setTutorialStep(2);
-                      }} 
+                      }}
                       className="p-2 bg-slate-800 hover:bg-rose-500/20 text-rose-400 ml-2 rounded transition-colors"
                       title="Reiniciar a m=0, b=0"
                     >
@@ -323,6 +428,31 @@ El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz cli
                     </button>
                   </div>
                </div>
+
+               {/* Probar modelo */}
+               {lr.calculations && lr.iteration > 0 && (
+                 <div className="bg-slate-900 rounded-lg border border-slate-800 px-4 py-2.5 flex flex-wrap items-center gap-4 shrink-0">
+                   <div className="font-mono text-sm text-slate-400">
+                     ŷ = <span className="text-slate-200 font-bold">{parseFloat(Number(lr.m).toFixed(4))}</span>·x + <span className="text-slate-200 font-bold">{parseFloat(Number(lr.b).toFixed(4))}</span>
+                   </div>
+                   <div className="flex items-center gap-2 ml-auto">
+                     <span className="text-xs text-slate-500">Probar X =</span>
+                     <input
+                       type="number"
+                       value={testXTheory}
+                       onChange={e => setTestXTheory(e.target.value)}
+                       placeholder={String(CASE_INFO[activeCase].exampleX)}
+                       className="w-20 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-white text-sm font-mono focus:outline-none focus:border-slate-500"
+                     />
+                     <span className="text-slate-600">→</span>
+                     <span className="font-mono text-sm font-bold text-slate-200 min-w-[60px]">
+                       ŷ = {testXTheory !== '' && !isNaN(Number(testXTheory))
+                         ? parseFloat((Number(lr.m) * Number(testXTheory) + Number(lr.b)).toFixed(4))
+                         : '–'}
+                     </span>
+                   </div>
+                 </div>
+               )}
 
                {/* Graph */}
                <div className={`flex-1 rounded-xl border relative overflow-hidden transition-all duration-500 ${tutorialStep === 0 ? 'border-slate-500/60 shadow-[0_0_20px_rgba(148,163,184,0.2)]' : 'border-slate-700'}`}>
@@ -413,8 +543,15 @@ El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz cli
                 </div>
               </div>
 
+              <div className="bg-slate-950 rounded-lg p-3 border border-slate-800 text-sm text-slate-400 mb-4">
+                <p className="font-semibold text-slate-300 mb-1">Solución exacta esperada:</p>
+                <p><span className="font-mono text-slate-200">m ≈ 420.84</span> — por cada Mpc extra, la velocidad aumenta ~421 km/s (Constante de Hubble histórica)</p>
+                <p><span className="font-mono text-slate-200">b ≈ 69.13</span> — velocidad base</p>
+                <p className="mt-1">Ejemplo: galaxia a <span className="font-mono text-slate-300">X = 1.5 Mpc</span> → <span className="font-mono text-slate-200">ŷ ≈ 700 km/s</span></p>
+                <p className="text-xs text-slate-600 mt-1">Usa "Resolver (exacto)" para el resultado inmediato. Con gradiente: α=0.01, necesita ~500 épocas.</p>
+              </div>
               <button
-                onClick={() => loadCase([{x: 0.03, y: 170}, {x: 0.27, y: 290}, {x: 0.45, y: 200}, {x: 0.9, y: 290}, {x: 1.4, y: 500}, {x: 2.0, y: 1090}], 0.01)}
+                onClick={() => loadCase('hubble', [{x: 0.03, y: 170}, {x: 0.27, y: 290}, {x: 0.45, y: 200}, {x: 0.9, y: 290}, {x: 1.4, y: 500}, {x: 2.0, y: 1090}], 0.01)}
                 className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
                 <Play size={18} /> Cargar Caso Hubble en el Simulador
@@ -460,8 +597,15 @@ El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz cli
                 </div>
               </div>
 
+              <div className="bg-slate-950 rounded-lg p-3 border border-slate-800 text-sm text-slate-400 mb-4">
+                <p className="font-semibold text-slate-300 mb-1">Solución exacta esperada:</p>
+                <p><span className="font-mono text-slate-200">m = 0.52</span> — por cada pulgada extra de los padres, el hijo crece solo 0.52 pulgadas (regresión hacia la media)</p>
+                <p><span className="font-mono text-slate-200">b = 32.8</span> — componente base de estatura</p>
+                <p className="mt-1">Ejemplo: padres con <span className="font-mono text-slate-300">X = 71 pulgadas</span> → hijo predecido <span className="font-mono text-slate-200">ŷ ≈ 69.72 pulgadas</span></p>
+                <p className="text-xs text-slate-600 mt-1">Los valores de X son grandes (~68), lo que hace el gradiente enorme. Usa "Resolver (exacto)" — con gradiente requiere α=0.0001 y miles de iteraciones.</p>
+              </div>
               <button
-                onClick={() => loadCase([{x: 64, y: 66}, {x: 66, y: 67.2}, {x: 68, y: 68.2}, {x: 70, y: 69.2}, {x: 72, y: 70.2}], 0.0001)}
+                onClick={() => loadCase('galton', [{x: 64, y: 66}, {x: 66, y: 67.2}, {x: 68, y: 68.2}, {x: 70, y: 69.2}, {x: 72, y: 70.2}], 0.0001)}
                 className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
                 <Play size={18} /> Cargar Caso Galton en el Simulador
@@ -507,8 +651,15 @@ El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz cli
                 </div>
               </div>
 
+              <div className="bg-slate-950 rounded-lg p-3 border border-slate-800 text-sm text-slate-400 mb-4">
+                <p className="font-semibold text-slate-300 mb-1">Solución exacta esperada:</p>
+                <p><span className="font-mono text-slate-200">m = 1.5 (Beta = 1.5)</span> — la acción amplifica el mercado x1.5. Por cada 1% del mercado, la acción mueve 1.5%</p>
+                <p><span className="font-mono text-slate-200">b = 0 (Alpha = 0)</span> — sin rendimiento propio independiente del mercado</p>
+                <p className="mt-1">Ejemplo: mercado sube <span className="font-mono text-slate-300">X = 3%</span> → acción predecida <span className="font-mono text-slate-200">ŷ = 4.5%</span></p>
+                <p className="text-xs text-slate-600 mt-1">Datos pequeños y centrados, α=0.01 converge bien. También usa "Resolver (exacto)" para el resultado inmediato.</p>
+              </div>
               <button
-                onClick={() => loadCase([{x: -2.0, y: -3.0}, {x: 1.0, y: 1.5}, {x: 3.0, y: 4.5}, {x: -1.0, y: -1.5}, {x: 4.0, y: 6.0}], 0.01)}
+                onClick={() => loadCase('capm', [{x: -2.0, y: -3.0}, {x: 1.0, y: 1.5}, {x: 3.0, y: 4.5}, {x: -1.0, y: -1.5}, {x: 4.0, y: 6.0}], 0.01)}
                 className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
                 <Play size={18} /> Cargar Caso CAPM en el Simulador
