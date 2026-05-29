@@ -124,6 +124,11 @@ function App() {
                 </div>
               </header>
 
+              {/* Chart Area */}
+              <div className="flex-1 flex flex-col min-h-[300px]">
+                <MainChart data={lr.data} m={lr.m} b={lr.b} />
+              </div>
+
               {/* Widget: Usar el modelo */}
               {(() => {
                 const mNum = Number(lr.m) || 0;
@@ -176,21 +181,6 @@ function App() {
                 );
               })()}
 
-              {/* Chatbot — inline, desplegable hacia abajo */}
-              <Chatbot
-                activeTab={activeTab}
-                iteration={lr.iteration}
-                step={lr.currentStep}
-                m={lr.m}
-                b={lr.b}
-                learningRate={lr.learningRate}
-                mse={lr.calculations?.mse || 0}
-                data={lr.data}
-                gradM={lr.calculations?.gradM}
-                gradB={lr.calculations?.gradB}
-                massiveState={massiveState}
-              />
-
               {/* Convergencia del error */}
               {lr.history.length > 0 && (
                 <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 shrink-0">
@@ -220,10 +210,20 @@ function App() {
                 </div>
               )}
 
-              {/* Chart Area */}
-              <div className="flex-1 flex flex-col min-h-[300px]">
-                <MainChart data={lr.data} m={lr.m} b={lr.b} />
-              </div>
+              {/* Chatbot — inline, desplegable hacia abajo */}
+              <Chatbot
+                activeTab={activeTab}
+                iteration={lr.iteration}
+                step={lr.currentStep}
+                m={lr.m}
+                b={lr.b}
+                learningRate={lr.learningRate}
+                mse={lr.calculations?.mse || 0}
+                data={lr.data}
+                gradM={lr.calculations?.gradM}
+                gradB={lr.calculations?.gradB}
+                massiveState={massiveState}
+              />
             </main>
 
             <MathPanel 
