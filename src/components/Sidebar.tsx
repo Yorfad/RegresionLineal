@@ -28,12 +28,6 @@ const parsePasteData = (raw: string): DataPoint[] => {
   return result;
 };
 
-const inputCls = (locked: boolean) =>
-  `w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${
-    locked
-      ? 'border-slate-800 opacity-50 cursor-not-allowed'
-      : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'
-  }`;
 
 export const Sidebar: React.FC<SidebarProps> = ({
   data, setData, m, setM, b, setB, learningRate, setLearningRate, locked,
