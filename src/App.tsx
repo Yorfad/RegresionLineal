@@ -212,7 +212,7 @@ function App() {
                       <Tooltip
                         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 6, fontSize: 11 }}
                         labelFormatter={v => `Iteración ${v}`}
-                        formatter={(v: number) => [parseFloat(v.toFixed(4)), 'MSE']}
+                        formatter={(v) => [v != null ? parseFloat(Number(v).toFixed(4)) : v, 'MSE']}
                       />
                       <Line type="monotone" dataKey="mse" stroke="#94a3b8" strokeWidth={2} dot={{ r: 3, fill: '#94a3b8' }} activeDot={{ r: 4 }} />
                     </LineChart>
