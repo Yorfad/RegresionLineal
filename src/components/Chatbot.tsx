@@ -72,7 +72,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
       return [
         { 
           role: 'assistant', 
-          content: '¡Hola! Soy tu asistente de ML. ⚠️ **Nota:** No se detectó ninguna API Key de Gemini configurada. Por favor, haz clic en el icono de llave (🔑) en la cabecera del chat e ingresa tu API Key de Google AI Studio (es gratuita) para habilitar el tutor de IA.' 
+          content: '¡Hola! Soy tu asistente de ML. **Nota:** No se detectó ninguna API Key de Gemini configurada. Haz clic en el icono de llave en la cabecera del chat e ingresa tu API Key de Google AI Studio (es gratuita) para habilitar el tutor de IA.'
         }
       ];
     }
@@ -109,7 +109,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
 
     try {
       if (!activeApiKey) {
-        setMessages(prev => [...prev, { role: 'assistant', content: '❌ **Error:** No se ha configurado ninguna API Key. Haz clic en el icono de llave (🔑) arriba para ingresar una.' }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: '**Error:** No se ha configurado ninguna API Key. Haz clic en el icono de llave arriba para ingresar una.' }]);
         setIsLoading(false);
         return;
       }
@@ -243,7 +243,7 @@ Reglas de respuesta:
               y pégala aquí.
             </p>
             <div className="bg-amber-950/30 border border-amber-900/50 rounded-lg p-2 text-[10px] text-amber-300">
-              ⚠ Las claves <code>VITE_</code> quedan expuestas en el frontend. Para producción, usa un proxy backend.
+              Las claves <code>VITE_</code> quedan expuestas en el frontend. Para producción, usa un proxy backend.
             </div>
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -350,7 +350,7 @@ Reglas de respuesta:
               >
                 <Key size={14} />
               </button>
-              <button onClick={() => setIsOpen(false)} className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-md transition-colors">
+              <button onClick={() => setIsOpen(false)} className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-600 rounded-md transition-colors border border-slate-600" title="Cerrar">
                 <X size={16} />
               </button>
             </div>
@@ -405,7 +405,7 @@ Reglas de respuesta:
                 y pégala aquí.
               </p>
               <div className="bg-amber-950/30 border border-amber-900/50 rounded-lg p-2 text-[10px] text-amber-300 leading-normal">
-                ⚠ Las claves <code>VITE_</code> quedan expuestas en el frontend. Para producción, usa un proxy backend.
+                Las claves <code>VITE_</code> quedan expuestas en el frontend. Para producción, usa un proxy backend.
               </div>
               <div className="flex gap-2">
                 <div className="relative flex-1">
@@ -440,7 +440,7 @@ Reglas de respuesta:
               </div>
               {import.meta.env.VITE_GEMINI_API_KEY && !customApiKey && (
                 <div className="text-[9px] text-slate-300 bg-slate-800/40 border border-slate-700/40 rounded p-1 text-center">
-                  ✓ Usando API Key preconfigurada (.env)
+                  Usando API Key preconfigurada (.env)
                 </div>
               )}
             </div>

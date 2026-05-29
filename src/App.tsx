@@ -71,7 +71,7 @@ function App() {
               setB={lr.setB}
               learningRate={lr.learningRate}
               setLearningRate={lr.setLearningRate}
-              locked={lr.currentStep > 0 || lr.iteration > 1}
+              locked={lr.currentStep > 0 || lr.iteration > 0}
             />
 
             <main className="flex-1 flex flex-col p-6 gap-6 overflow-y-auto relative">
@@ -85,13 +85,18 @@ function App() {
                     <p className="text-sm text-slate-400 font-medium">
                       Paso actual: <span className="text-slate-300">{StepName[lr.currentStep]}</span>
                     </p>
+                    {lr.calculations && (
+                      <p className="text-sm text-slate-400 font-medium">
+                        Error (MSE): <span className="text-slate-300 font-mono">{parseFloat(lr.calculations.mse.toFixed(6)).toString()}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
                 
                 <div className="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-700 overflow-x-auto">
                   <button 
                     onClick={lr.prevStep} 
-                    disabled={lr.currentStep === 0 && lr.iteration === 1}
+                    disabled={lr.currentStep === 0 && lr.iteration === 0}
                     className="px-3 py-2 flex items-center gap-2 text-sm font-medium rounded-md hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-slate-300"
                   >
                     <SkipBack size={16} /> Anterior
@@ -131,13 +136,13 @@ function App() {
                       <div>
                         <div className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1.5">Modelo ajustado</div>
                         <div className="font-mono text-base text-slate-200 mb-2">
-                          ŷ = <span className="text-white font-bold">{mNum.toFixed(4)}</span> · x + <span className="text-white font-bold">{bNum.toFixed(4)}</span>
+                          ŷ = <span className="text-white font-bold">{parseFloat(mNum.toFixed(4))}</span> · x + <span className="text-white font-bold">{parseFloat(bNum.toFixed(4))}</span>
                         </div>
                         <div className="flex gap-4 text-xs text-slate-500">
-                          <span><span className="text-slate-300 font-semibold">m = {mNum.toFixed(4)}</span> — pendiente (cuánto sube ŷ por cada unidad de x)</span>
+                          <span><span className="text-slate-300 font-semibold">m = {parseFloat(mNum.toFixed(4))}</span> — pendiente (cuánto sube ŷ por cada unidad de x)</span>
                         </div>
                         <div className="text-xs text-slate-500 mt-0.5">
-                          <span><span className="text-slate-300 font-semibold">b = {bNum.toFixed(4)}</span> — intercepto (valor de ŷ cuando x = 0, donde la recta toca el eje Y)</span>
+                          <span><span className="text-slate-300 font-semibold">b = {parseFloat(bNum.toFixed(4))}</span> — intercepto (valor de ŷ cuando x = 0, donde la recta toca el eje Y)</span>
                         </div>
                       </div>
                       {/* Input de prueba */}
@@ -157,8 +162,8 @@ function App() {
                           <div className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1.5">Resultado ŷ =</div>
                           {pred !== null ? (
                             <div>
-                              <div className="font-mono font-bold text-lg text-slate-100">{pred.toFixed(4)}</div>
-                              <div className="text-[11px] text-slate-500 font-mono">{mNum.toFixed(4)}·{testX} + {bNum.toFixed(4)}</div>
+                              <div className="font-mono font-bold text-lg text-slate-100">{parseFloat(pred.toFixed(4))}</div>
+                              <div className="text-[11px] text-slate-500 font-mono">{parseFloat(mNum.toFixed(4))}·{testX} + {parseFloat(bNum.toFixed(4))}</div>
                             </div>
                           ) : (
                             <div className="font-mono text-slate-600 text-lg">–</div>

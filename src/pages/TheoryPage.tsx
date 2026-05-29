@@ -16,7 +16,7 @@ En esta guía exhaustiva, aprenderás exactamente qué es, cómo aplicarla a cua
 
 ---
 
-## 🧭 La Guía Maestra: Cómo Resolver Cualquier Problema
+## La Guía Maestra: Cómo Resolver Cualquier Problema
 
 La belleza de la Regresión Lineal por Descenso de Gradiente es que, matemáticamente, siempre se resuelve igual. Si te enfrentas a un problema donde tienes datos históricos y necesitas predecir un valor numérico futuro, aplica siempre estos 5 pasos inmutables:
 
@@ -58,7 +58,7 @@ Repite desde el Paso 2 miles de veces (iteraciones) hasta que los valores de $m$
 
 ---
 
-## 🛠️ Tutorial Práctico: Resuélvelo a Mano
+## Tutorial Práctico: Resuélvelo a Mano
 
 Para entender cómo "aprende" la Inteligencia Artificial, vamos a ser la computadora por un momento. Queremos predecir la calificación de un estudiante en un examen (0 a 10) basándonos en cuántas horas estudió.
 
@@ -81,7 +81,7 @@ Tenemos los datos de 3 estudiantes:
 
 ¡Felicidades! Acabas de dar el primer paso de entrenamiento a mano.
 
-### 📈 Evolución y Resolución Completa del Problema
+### Evolución y Resolución Completa del Problema
 
 Si repetimos este proceso (Paso 2 al Paso 5) en un bucle durante cientos de iteraciones, veremos cómo cambian los parámetros progresivamente:
 
@@ -125,7 +125,7 @@ export const TheoryPage: React.FC = () => {
       setTutorialStep(2);
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (lr.iteration > 1 && tutorialStep === 2) {
+    if (lr.iteration > 0 && tutorialStep === 2) {
       setTutorialStep(3);
     }
   }, [lr.data.length, lr.learningRate, lr.iteration, tutorialStep]);
@@ -144,43 +144,46 @@ export const TheoryPage: React.FC = () => {
     const currentMse = lr.calculations?.mse || 0;
     const it = lr.iteration;
 
-    let title = "🚀 Progreso de Entrenamiento";
+    let title = "Progreso de Entrenamiento";
     let text = "";
 
-    if (it === 2) {
-      title = "🎉 ¡Primera Iteración Completada!";
-      text = `El simulador ha calculado los gradientes iniciales y ha dado su primer paso de aprendizaje:
-* **Pendiente ($m$):** Cambió de $0.00$ a $${currentM.toFixed(4)}$ (comparado con los $0.1867$ teóricos).
-* **Intercepto ($b$):** Cambió de $0.00$ a $${currentB.toFixed(4)}$ (comparado con los $0.0800$ teóricos).
-* **Error MSE:** Disminuyó de $18.6700$ a $${currentMse.toFixed(4)}$.
+    if (it === 1) {
+      title = "Primera Iteración Completada";
+      text = `El simulador ha ejecutado los 7 pasos del panel derecho y ha dado su primer paso de aprendizaje:
+* **Paso 1 (ŷ):** Predijo $\\hat{y}_i = 0 \\cdot x_i + 0 = 0$ para todos los puntos.
+* **Pasos 2-3 (errores):** Calculó $e_i = 0 - y_i$ y sus cuadrados.
+* **Paso 4 (J):** $J = 18.6700$ — el error inicial con $m=0, b=0$.
+* **Pasos 5-6 (matrices y gradientes):** $\\partial J / \\partial m = -18.667$, $\\partial J / \\partial b = -8.00$.
+* **Paso 7 (actualización):** $m$ cambió de $0.00$ a $${currentM.toFixed(4)}$ y $b$ a $${currentB.toFixed(4)}$.
 
-¡Compara estos valores con los cálculos manuales explicados en la guía de arriba! Son exactamente iguales.`;
-    } else if (Math.abs(currentM - 2) <= 0.1 && Math.abs(currentB) <= 0.1) {
-      title = "🏆 ¡Modelo Convergido con Éxito!";
-      text = `¡Felicidades! En la **iteración ${it}**, el modelo ha resuelto por completo el caso:
-* **Pendiente ($m$):** $${currentM.toFixed(4)} \\approx 2.00$ (La calificación es exactamente el doble de las horas de estudio).
-* **Intercepto ($b$):** $${currentB.toFixed(4)} \\approx 0.00$ (Si estudias 0 horas, tu predicción de examen es de 0 puntos).
-* **Error MSE:** $${currentMse.toFixed(6)}$ (¡Prácticamente cero!).
+Compara con los cálculos manuales de la guía — los valores son exactamente iguales.`;
+    } else if (Math.abs(currentM - 2) <= 0.05 && Math.abs(currentB) <= 0.05) {
+      title = "Modelo Convergido";
+      text = `En la iteración ${it}, el modelo encontró la solución optima:
+* **Pendiente ($m$):** $${currentM.toFixed(4)} \\approx 2.00$ — la calificación es el doble de las horas de estudio.
+* **Intercepto ($b$):** $${currentB.toFixed(4)} \\approx 0.00$ — con 0 horas estudiadas, la predicción es 0 puntos.
+* **Error (MSE):** $${currentMse.toFixed(6)}$ — prácticamente cero.
+* **Predicción para 4.5 horas:** $\\hat{y} = 2.00 \\times 4.5 + 0.00 = 9.0$ puntos.
 
-La línea de regresión ahora cruza perfectamente por el centro de todos los puntos de datos. El aprendizaje automático ha finalizado.`;
+La línea cruza exactamente por los tres puntos. Usa "Resolver" para llegar aquí instantáneamente con la solución analítica exacta.`;
     } else {
-      title = `⚡ Entrenando el Modelo (Iteración ${it})`;
+      title = `Entrenando (Iteración ${it})`;
       const distM = Math.abs(2.0 - currentM);
-      
+
       if (distM > 0.8) {
-        text = `El modelo está dando sus primeros pasos de ajuste en la **iteración ${it}**:
+        text = `El modelo ajusta sus parámetros en la iteración ${it}:
 * **Pendiente actual ($m$):** $${currentM.toFixed(4)}$ (subiendo hacia $2.00$).
 * **Intercepto actual ($b$):** $${currentB.toFixed(4)}$ (ajustándose hacia $0.00$).
-* **Error MSE:** $${currentMse.toFixed(4)}$.
+* **Error (MSE):** $${currentMse.toFixed(4)}$.
 
-El error está disminuyendo rápidamente. Prueba a hacer clic en **"50 Épocas"** o **"⚡ Resolver"** para acelerar el aprendizaje y ver cómo la línea de predicción se ajusta sobre el dataset.`;
+Cada iteración repite los 7 pasos del panel. Haz clic en "50 Épocas" para acelerar o en "Resolver" para la solución exacta instantánea.`;
       } else {
-        text = `¡El modelo está muy cerca de la solución óptima en la **iteración ${it}**!:
+        text = `El modelo está muy cerca de la solución en la iteración ${it}:
 * **Pendiente actual ($m$):** $${currentM.toFixed(4)}$ (objetivo: $2.00$).
 * **Intercepto actual ($b$):** $${currentB.toFixed(4)}$ (objetivo: $0.00$).
-* **Error MSE:** $${currentMse.toFixed(6)}$.
+* **Error (MSE):** $${currentMse.toFixed(6)}$.
 
-La pendiente se acerca a $2.00$ y el error es mínimo. El descenso de gradiente está refinando el intercepto para pasar exactamente por el origen $(0,0)$.`;
+El gradiente es casi cero — el modelo no tiene mucho más que ajustar. Haz clic en "Resolver" para la solución analítica exacta.`;
       }
     }
 
@@ -206,7 +209,7 @@ La pendiente se acerca a $2.00$ y el error es mínimo. El descenso de gradiente 
         <div id="simulator-lab" className="my-16 bg-slate-950 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl not-prose">
           <div className="bg-slate-800 p-6 border-b border-slate-700">
             <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
-              <Zap className="text-yellow-400" /> Laboratorio Interactivo: Compruébalo Tú Mismo
+              <Zap className="text-slate-400" /> Laboratorio Interactivo: Compruébalo Tú Mismo
             </h3>
             <p className="text-slate-300 text-sm">
               Sigue las instrucciones animadas para replicar las matemáticas de arriba en el simulador real. Esta es una herramienta funcional, ¡prueba con tus propios datos después!
@@ -292,14 +295,14 @@ La pendiente se acerca a $2.00$ y el error es mínimo. El descenso de gradiente 
                       50 Épocas
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => {
-                        lr.runMultipleIterations(500);
+                        lr.solveAnalytically();
                         setTutorialStep(3);
                       }}
                       className="px-3 py-2 bg-slate-700/20 hover:bg-slate-700/40 text-slate-300 border border-slate-700/50 font-semibold text-sm rounded transition-colors animate-pulse"
                     >
-                      ⚡ Resolver
+                      Resolver (exacto)
                     </button>
 
                     <button 
@@ -363,36 +366,54 @@ La pendiente se acerca a $2.00$ y el error es mínimo. El descenso de gradiente 
         {/* CASOS FAMOSOS JSX */}
         <div className="mt-20 border-t border-slate-800 pt-16">
           <h2 className="text-3xl font-bold text-white mb-10 flex items-center gap-3">
-            🌍 Casos Famosos de Regresión Lineal
+            Casos Reales de Regresión Lineal
           </h2>
           <p className="text-lg text-slate-300 mb-10">
             Para que veas que esto no es solo para predecir calificaciones, aquí hay tres casos reales que usaron regresión lineal y cambiaron al mundo. Cárgalos en el simulador para ver la matemática en acción.
           </p>
 
-          <div className="flex flex-col gap-8 not-prose">
+          <div className="flex flex-col gap-10 not-prose">
+
             {/* Caso 1: Hubble */}
             <div className="bg-slate-900 border border-slate-700 rounded-xl p-8 shadow-xl hover:border-slate-500/50 transition-colors">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 bg-slate-800/50 text-slate-300 rounded-lg"><Telescope size={32} /></div>
                 <div>
                   <h3 className="text-2xl font-bold text-white">La Expansión del Universo</h3>
-                  <p className="text-slate-300 font-medium">Edwin Hubble (1929) - Ley de Hubble</p>
+                  <p className="text-slate-400 font-medium">Edwin Hubble (1929) — Ley de Hubble</p>
                 </div>
               </div>
-              <p className="text-slate-300 mb-6">Edwin Hubble (1929) midió la distancia de galaxias lejanas en Megapársecs (Mpc) y su velocidad de recesión en km/s. Su regresión demostró que el universo se expande de forma uniforme. Carga los datos históricos reales de su publicación original (Mpc vs km/s).</p>
-              
-              <div className="bg-slate-950 rounded-lg p-5 mb-6 border border-slate-800 text-sm text-slate-400">
-                <strong className="text-white block mb-2">Los 5 Pasos en acción:</strong>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li><strong>1. Modelado:</strong> $X$ = Distancia de la galaxia, $Y$ = Velocidad de alejamiento.</li>
-                  <li><strong>2. Predicciones:</strong> Al inicio asumimos que la velocidad no depende de la distancia ($m=0$).</li>
-                  <li><strong>3. Error:</strong> Comparamos nuestras predicciones con las medidas reales del telescopio.</li>
-                  <li><strong>4. Gradiente:</strong> Vemos que si aumentamos la pendiente $m$, el error se reduce muchísimo.</li>
-                  <li><strong>5. Actualización:</strong> Ajustamos la línea hasta encontrar la "Constante de Hubble".</li>
-                </ul>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-3 text-sm text-slate-300">
+                  <p>En 1929 Edwin Hubble midió la distancia a varias galaxias y su velocidad de alejamiento. Al trazar la recta de regresión descubrió que el universo se expande: cuanto más lejos está una galaxia, más rápido se aleja. Esto cambió para siempre nuestra visión del cosmos.</p>
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800 space-y-1.5">
+                    <p><strong className="text-slate-200">X</strong> — Distancia de la galaxia en Megapársecs (Mpc). 1 Mpc ≈ 3.26 millones de años luz.</p>
+                    <p><strong className="text-slate-200">Y</strong> — Velocidad de recesión en km/s (medida por corrimiento al rojo del espectro de luz).</p>
+                    <p><strong className="text-slate-200">m (pendiente)</strong> — La Constante de Hubble H₀. Significa: por cada Mpc extra de distancia, la galaxia se aleja ~500 km/s más rápido.</p>
+                    <p><strong className="text-slate-200">b (intercepto)</strong> — Debe ser ≈ 0: una galaxia a distancia cero (nuestra propia) no se aleja.</p>
+                  </div>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800">
+                    <p className="text-slate-400 font-semibold mb-2">Cómo usar el modelo</p>
+                    <p className="text-slate-300">Si descubres una nueva galaxia a 1.5 Mpc, el modelo predice:<br/><span className="font-mono text-slate-200">ŷ = m × 1.5 + b</span><br/>Después puedes verificarlo midiendo su corrimiento al rojo con un espectrógrafo.</p>
+                  </div>
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800 text-slate-400">
+                    <p className="font-semibold text-slate-300 mb-2">Los 7 pasos del sistema aplicados</p>
+                    <ul className="space-y-1">
+                      <li><strong className="text-slate-300">Paso 1 (ŷ):</strong> Predice velocidad con la H₀ actual para cada galaxia.</li>
+                      <li><strong className="text-slate-300">Pasos 2-3 (errores):</strong> Diferencia entre velocidad predicha y medida por telescopio.</li>
+                      <li><strong className="text-slate-300">Paso 4 (J):</strong> MSE — promedio de los errores al cuadrado sobre las 6 galaxias.</li>
+                      <li><strong className="text-slate-300">Paso 5 (matrices):</strong> Productos eᵢ·xᵢ que "pesan" más las galaxias lejanas.</li>
+                      <li><strong className="text-slate-300">Paso 6 (gradientes):</strong> Dirección para ajustar H₀ y el origen.</li>
+                      <li><strong className="text-slate-300">Paso 7 (actualización):</strong> Nuevo H₀ más preciso. Converge en la Constante de Hubble real.</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => loadCase([{x: 0.03, y: 170}, {x: 0.27, y: 290}, {x: 0.45, y: 200}, {x: 0.9, y: 290}, {x: 1.4, y: 500}, {x: 2.0, y: 1090}], 0.01)}
                 className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
@@ -402,61 +423,95 @@ La pendiente se acerca a $2.00$ y el error es mínimo. El descenso de gradiente 
 
             {/* Caso 2: Galton */}
             <div className="bg-slate-900 border border-slate-700 rounded-xl p-8 shadow-xl hover:border-slate-500/50 transition-colors">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 bg-slate-800/50 text-slate-300 rounded-lg"><Dna size={32} /></div>
                 <div>
                   <h3 className="text-2xl font-bold text-white">El Origen del nombre "Regresión"</h3>
-                  <p className="text-slate-300 font-medium">Sir Francis Galton - Biología Evolutiva</p>
+                  <p className="text-slate-400 font-medium">Sir Francis Galton (1886) — Biología Evolutiva</p>
                 </div>
               </div>
-              <p className="text-slate-300 mb-6">Sir Francis Galton relacionó la estatura media de los padres con la de sus hijos en pulgadas. Demostró que los hijos de padres muy altos tienden a ser más bajos que sus padres, "regresando" hacia la media general. Carga la escala histórica real (pulgadas de estatura).</p>
-              
-              <div className="bg-slate-950 rounded-lg p-5 mb-6 border border-slate-800 text-sm text-slate-400">
-                <strong className="text-white block mb-2">Los 5 Pasos en acción:</strong>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li><strong>1. Modelado:</strong> $X$ = Altura de los padres, $Y$ = Altura de los hijos.</li>
-                  <li><strong>2. Predicciones:</strong> El modelo empieza prediciendo alturas en base a una pendiente de cero.</li>
-                  <li><strong>3. Error:</strong> Calculamos el MSE de las predicciones frente a los verdaderos datos familiares.</li>
-                  <li><strong>4. Gradiente:</strong> Calculamos hacia dónde mover la pendiente para mejorar el ajuste.</li>
-                  <li><strong>5. Actualización:</strong> La línea converge mostrando que $m$ es menor a 1 (Regresión hacia la media).</li>
-                </ul>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-3 text-sm text-slate-300">
+                  <p>Galton estudió la herencia de la estatura midiendo cientos de familias en Inglaterra. Descubrió algo contraintuitivo: los hijos de padres muy altos tienden a ser más bajos que sus padres, y los hijos de padres muy bajos tienden a ser más altos. Llamó a este fenómeno "regresión hacia la media" — de ahí viene el nombre de todo el algoritmo.</p>
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800 space-y-1.5">
+                    <p><strong className="text-slate-200">X</strong> — Estatura promedio de los padres (pulgadas).</p>
+                    <p><strong className="text-slate-200">Y</strong> — Estatura del hijo adulto (pulgadas).</p>
+                    <p><strong className="text-slate-200">m (pendiente) ≈ 0.65</strong> — Por cada pulgada extra de los padres, el hijo solo crece 0.65 pulgadas. Si m fuera 1, los hijos replicarían exactamente la estatura de los padres; como m &lt; 1, "regresan" hacia la media.</p>
+                    <p><strong className="text-slate-200">b (intercepto) ≈ 24</strong> — Componente de estatura independiente de los padres (nutrición, factores no genéticos).</p>
+                  </div>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800">
+                    <p className="text-slate-400 font-semibold mb-2">Cómo usar el modelo</p>
+                    <p className="text-slate-300">Padres con estatura promedio de 72 pulgadas (muy altos):<br/><span className="font-mono text-slate-200">ŷ = 0.65 × 72 + 24 = 70.8 pulgadas</span><br/>Su hijo se predice más bajo. Padres de 64 pulgadas:<br/><span className="font-mono text-slate-200">ŷ = 0.65 × 64 + 24 = 65.6 pulgadas</span><br/>Su hijo se predice más alto. Ambos "regresan" al centro.</p>
+                  </div>
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800 text-slate-400">
+                    <p className="font-semibold text-slate-300 mb-2">Los 7 pasos del sistema aplicados</p>
+                    <ul className="space-y-1">
+                      <li><strong className="text-slate-300">Paso 1 (ŷ):</strong> Predice estatura del hijo según la de los padres.</li>
+                      <li><strong className="text-slate-300">Pasos 2-3 (errores):</strong> Diferencia entre estatura predicha y medida real del hijo.</li>
+                      <li><strong className="text-slate-300">Paso 4 (J):</strong> MSE en pulgadas². Hay que minimizarlo para que la línea encaje mejor.</li>
+                      <li><strong className="text-slate-300">Paso 5 (matrices):</strong> Productos eᵢ·xᵢ donde xᵢ son las estaturas de los padres.</li>
+                      <li><strong className="text-slate-300">Paso 6 (gradientes):</strong> Indica que m debe subir desde 0 hacia 0.65.</li>
+                      <li><strong className="text-slate-300">Paso 7 (actualización):</strong> Converge en m≈0.65 — la "regresión hacia la media" demostrada matemáticamente.</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => loadCase([{x: 64, y: 66}, {x: 66, y: 67.2}, {x: 68, y: 68.2}, {x: 70, y: 69.2}, {x: 72, y: 70.2}], 0.0001)}
                 className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
-                <Play size={18} /> Cargar Caso Galton en el Simulador (LR: 0.0001)
+                <Play size={18} /> Cargar Caso Galton en el Simulador
               </button>
             </div>
 
             {/* Caso 3: CAPM */}
             <div className="bg-slate-900 border border-slate-700 rounded-xl p-8 shadow-xl hover:border-slate-500/50 transition-colors">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 bg-slate-800/50 text-slate-300 rounded-lg"><TrendingUp size={32} /></div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white">Modelo CAPM y el Riesgo</h3>
-                  <p className="text-slate-300 font-medium">Wall Street - Finanzas Cuantitativas</p>
+                  <h3 className="text-2xl font-bold text-white">Riesgo Financiero (CAPM)</h3>
+                  <p className="text-slate-400 font-medium">Wall Street — Finanzas Cuantitativas</p>
                 </div>
               </div>
-              <p className="text-slate-300 mb-6">Mide el riesgo sistémico de una acción comparado con el rendimiento del mercado (S&P 500). La pendiente $m$ (Beta) representa la volatilidad de la acción respecto al mercado. Carga retornos mensuales realistas con fluctuaciones en Wall Street.</p>
-              
-              <div className="bg-slate-950 rounded-lg p-5 mb-6 border border-slate-800 text-sm text-slate-400">
-                <strong className="text-white block mb-2">Los 5 Pasos en acción:</strong>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li><strong>1. Modelado:</strong> $X$ = Rendimiento del mercado, $Y$ = Rendimiento de la acción.</li>
-                  <li><strong>2. Predicciones:</strong> Suponemos al inicio que la acción no sigue al mercado ($m=0$).</li>
-                  <li><strong>3. Error:</strong> Cuantificamos la diferencia entre nuestra predicción y el retorno real de la acción.</li>
-                  <li><strong>4. Gradiente:</strong> Vemos cómo ajustar $m$ (Beta) y $b$ (Alpha) para acercarnos a la realidad.</li>
-                  <li><strong>5. Actualización:</strong> Encontramos el Beta real. Si $m &gt; 1$, la acción es más volátil que el mercado.</li>
-                </ul>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="space-y-3 text-sm text-slate-300">
+                  <p>El modelo CAPM (Capital Asset Pricing Model) usa regresión lineal para medir cuánto se mueve una acción en relación con el mercado completo. Los analistas de Wall Street corren esta regresión cada mes para clasificar acciones como "agresivas" o "conservadoras".</p>
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800 space-y-1.5">
+                    <p><strong className="text-slate-200">X</strong> — Rendimiento mensual del mercado (S&amp;P 500), en porcentaje.</p>
+                    <p><strong className="text-slate-200">Y</strong> — Rendimiento mensual de la acción, en porcentaje.</p>
+                    <p><strong className="text-slate-200">m = Beta (β)</strong> — Sensibilidad al mercado. β &gt; 1: la acción amplifica los movimientos del mercado (más riesgo). β &lt; 1: más estable que el mercado. β &lt; 0: se mueve al revés (activo refugio).</p>
+                    <p><strong className="text-slate-200">b = Alpha (α)</strong> — Rendimiento propio de la acción, independiente del mercado. Alpha positivo es el "valor agregado" del gestor o la empresa.</p>
+                  </div>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800">
+                    <p className="text-slate-400 font-semibold mb-2">Cómo usar el modelo</p>
+                    <p className="text-slate-300">Si el mercado sube un 3% este mes y la acción tiene β=1.5:<br/><span className="font-mono text-slate-200">ŷ = 1.5 × 3 + 0 = 4.5%</span><br/>La acción debería subir 4.5%. Si realmente subió 6%, el Alpha fue de +1.5% — la empresa generó valor extra. Para verificarlo, solo necesitas los datos históricos mensuales de la acción y el índice.</p>
+                  </div>
+                  <div className="bg-slate-950 rounded-lg p-4 border border-slate-800 text-slate-400">
+                    <p className="font-semibold text-slate-300 mb-2">Los 7 pasos del sistema aplicados</p>
+                    <ul className="space-y-1">
+                      <li><strong className="text-slate-300">Paso 1 (ŷ):</strong> Predice el rendimiento de la acción según el mercado del mes.</li>
+                      <li><strong className="text-slate-300">Pasos 2-3 (errores):</strong> Diferencia entre rendimiento predicho y real de la acción.</li>
+                      <li><strong className="text-slate-300">Paso 4 (J):</strong> MSE en puntos porcentuales². Cuanto menor, mejor ajuste histórico.</li>
+                      <li><strong className="text-slate-300">Paso 5 (matrices):</strong> Los productos eᵢ·xᵢ ponderan los meses de alta volatilidad.</li>
+                      <li><strong className="text-slate-300">Paso 6 (gradientes):</strong> Indica hacia dónde ajustar Beta y Alpha.</li>
+                      <li><strong className="text-slate-300">Paso 7 (actualización):</strong> Converge en Beta=1.5 — la acción amplifica el mercado x1.5.</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
-              <button 
+              <button
                 onClick={() => loadCase([{x: -2.0, y: -3.0}, {x: 1.0, y: 1.5}, {x: 3.0, y: 4.5}, {x: -1.0, y: -1.5}, {x: 4.0, y: 6.0}], 0.01)}
                 className="flex items-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-medium rounded-lg transition-colors w-full sm:w-auto justify-center"
               >
-                <Play size={18} /> Cargar Caso Wall Street en el Simulador
+                <Play size={18} /> Cargar Caso CAPM en el Simulador
               </button>
             </div>
           </div>

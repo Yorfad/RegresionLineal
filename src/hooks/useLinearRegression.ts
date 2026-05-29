@@ -44,7 +44,7 @@ export function useLinearRegression() {
   const [m, setM] = useState<number | string>(0);
   const [b, setB] = useState<number | string>(0);
   const [learningRate, setLearningRate] = useState<number | string>(0.01);
-  const [iteration, setIteration] = useState<number>(1);
+  const [iteration, setIteration] = useState<number>(0);
   const [currentStep, setCurrentStep] = useState<Step>(Step.PREDICTIONS);
   const [history, setHistory] = useState<HistoryRecord[]>([]);
 
@@ -105,7 +105,7 @@ export function useLinearRegression() {
   const prevStep = () => {
     if (currentStep > Step.PREDICTIONS) {
       setCurrentStep((prev) => (prev - 1) as Step);
-    } else if (iteration > 1) {
+    } else if (iteration > 0) {
       const lastRecord = history[history.length - 1];
       if (lastRecord) {
         setM(lastRecord.m);
@@ -182,12 +182,34 @@ export function useLinearRegression() {
     setCurrentStep(Step.PREDICTIONS);
   };
 
+  // Exact solution using normal equations — no gradient descent needed
+  const solveAnalytically = () => {
+    const cleanData = data
+      .map((d) => ({ x: d.x === '' ? NaN : Number(d.x), y: d.y === '' ? NaN : Number(d.y) }))
+      .filter((d) => Number.isFinite(d.x) && Number.isFinite(d.y));
+    const n = cleanData.length;
+    if (n < 2) return;
+    const sumX  = cleanData.reduce((s, d) => s + d.x, 0);
+    const sumY  = cleanData.reduce((s, d) => s + d.y, 0);
+    const sumXY = cleanData.reduce((s, d) => s + d.x * d.y, 0);
+    const sumX2 = cleanData.reduce((s, d) => s + d.x * d.x, 0);
+    const denom = n * sumX2 - sumX * sumX;
+    if (denom === 0) return;
+    const newM = (n * sumXY - sumX * sumY) / denom;
+    const newB = (sumY - newM * sumX) / n;
+    setHistory((prev) => [...prev, { iteration, m: Number(m) || 0, b: Number(b) || 0, mse: calculations?.mse ?? 0 }]);
+    setM(newM);
+    setB(newB);
+    setIteration((prev) => prev + 1);
+    setCurrentStep(Step.PREDICTIONS);
+  };
+
   const reset = () => {
     setData(DEFAULT_DATA);
     setM(0);
     setB(0);
     setLearningRate(0.01);
-    setIteration(1);
+    setIteration(0);
     setCurrentStep(Step.PREDICTIONS);
     setHistory([]);
   };
@@ -209,6 +231,7 @@ export function useLinearRegression() {
     prevStep,
     runFullIteration,
     runMultipleIterations,
+    solveAnalytically,
     reset,
   };
 }

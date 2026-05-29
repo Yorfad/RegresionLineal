@@ -63,7 +63,7 @@ const generateTechSalaries = (): DataPoint[] => {
 
 // Theoretical explanation of computation and AI at scale
 const computationTheory = `
-## 🧠 La Computación Moderna y la IA en la Regresión Lineal
+## La Computación Moderna y la IA en la Regresión Lineal
 
 A nivel universitario, es fácil calcular una regresión con 5 o 10 puntos de datos en una pizarra o en Excel. Sin embargo, en problemas del mundo real y sistemas de Inteligencia Artificial (como las redes neuronales que procesan textos o imágenes), los modelos se entrenan con **millones de registros** y **miles de variables de entrada**.
 
@@ -626,8 +626,8 @@ export const LargeScaleSimulator: React.FC<LargeScaleSimulatorProps> = ({ onStat
 
   const getInteractiveMathExplanation = () => {
     const N = data.length;
-    const mStr = isExploded ? 'NaN' : mOrig.toFixed(4);
-    const bStr = isExploded ? 'NaN' : bOrig.toFixed(2);
+    const mStr = isExploded ? 'NaN' : String(parseFloat(mOrig.toFixed(4)));
+    const bStr = isExploded ? 'NaN' : String(parseFloat(bOrig.toFixed(4)));
     const mseStr = mse === Infinity ? 'Infinity' : mse.toLocaleString(undefined, { maximumFractionDigits: 4 });
     const lrStr = learningRate.toString();
     const normalizeStatus = normalize 
@@ -755,7 +755,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
             {/* Card 1: Data Source Selector */}
             <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                📂 1. Seleccionar Conjunto de Datos
+                1. Seleccionar Conjunto de Datos
               </h2>
               
               <div className="flex flex-col gap-2.5">
@@ -901,7 +901,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
             {/* Card 2: Hyperparameters & Normalization */}
             <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg flex flex-col gap-4">
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                ⚙️ 2. Hiperparámetros y Escalado
+                2. Hiperparámetros y Escalado
               </h2>
 
               {/* Normalization Toggle */}
@@ -928,8 +928,8 @@ Actualmente, la normalización está **${normalizeStatus}**.
                 </div>
                 <p className="text-xs text-slate-500 leading-normal">
                   {normalize 
-                    ? "✓ Min-Max Scaling activo. El gradiente es estable y la línea converge fluidamente."
-                    : "⚠ Desactivado. El gradiente usará la escala original. ¡Peligro de explosión!"}
+                    ? "Min-Max Scaling activo. El gradiente es estable y la línea converge fluidamente."
+                    : "Desactivado. El gradiente usará la escala original. Peligro de explosión si el Learning Rate es alto."}
                 </p>
               </div>
 
@@ -996,18 +996,18 @@ Actualmente, la normalización está **${normalizeStatus}**.
                   <div className="bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg">
                     <div className="text-xs font-semibold text-slate-500 mb-0.5">MODELO AJUSTADO</div>
                     <div className="text-sm font-mono font-bold text-slate-200">
-                      {isExploded ? 'y = NaN · x + NaN' : `ŷ = ${mOrig.toFixed(4)} · x + ${bOrig.toFixed(4)}`}
+                      {isExploded ? 'y = NaN · x + NaN' : `ŷ = ${parseFloat(mOrig.toFixed(4))} · x + ${parseFloat(bOrig.toFixed(4))}`}
                     </div>
                     {!isExploded && (
                       <div className="flex gap-5 mt-2">
                         <div>
                           <span className="text-xs text-slate-500 block leading-none mb-0.5">pendiente</span>
-                          <span className="font-mono font-bold text-slate-200">m = {mOrig.toFixed(4)}</span>
+                          <span className="font-mono font-bold text-slate-200">m = {parseFloat(mOrig.toFixed(4))}</span>
                         </div>
                         <div className="w-px bg-slate-800" />
                         <div>
                           <span className="text-xs text-slate-500 block leading-none mb-0.5">intercepto (y en x=0)</span>
-                          <span className="font-mono font-bold text-slate-200">b = {bOrig.toFixed(4)}</span>
+                          <span className="font-mono font-bold text-slate-200">b = {parseFloat(bOrig.toFixed(4))}</span>
                         </div>
                       </div>
                     )}
@@ -1030,8 +1030,8 @@ Actualmente, la normalización está **${normalizeStatus}**.
                         <div className="text-xs text-slate-500 mb-1">ŷ ({yLabel.split(' ')[0]})</div>
                         {testXMassive !== '' && !isNaN(Number(testXMassive)) ? (
                           <div>
-                            <div className="font-mono font-bold text-slate-100 text-sm">{(mOrig * Number(testXMassive) + bOrig).toFixed(4)}</div>
-                            <div className="text-[10px] text-slate-600 font-mono">{mOrig.toFixed(4)}·{testXMassive} + {bOrig.toFixed(4)}</div>
+                            <div className="font-mono font-bold text-slate-100 text-sm">{parseFloat((mOrig * Number(testXMassive) + bOrig).toFixed(4))}</div>
+                            <div className="text-[10px] text-slate-600 font-mono">{parseFloat(mOrig.toFixed(4))}·{testXMassive} + {parseFloat(bOrig.toFixed(4))}</div>
                           </div>
                         ) : (
                           <div className="text-slate-600 font-mono">–</div>
@@ -1138,7 +1138,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
                     disabled={isRunning || isExploded}
                     className="px-4 py-2.5 bg-slate-700/20 hover:bg-slate-700/40 text-slate-300 font-semibold text-sm rounded-lg transition-colors border border-slate-700/50 disabled:opacity-50"
                   >
-                    ⚡ Ajustar Rápido
+                    Ajustar Rápido
                   </button>
 
                   <button
@@ -1177,7 +1177,7 @@ Actualmente, la normalización está **${normalizeStatus}**.
         <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-10 shadow-2xl mt-4">
           <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-6">
             <h2 className="text-xl md:text-2xl font-extrabold text-slate-100">
-              {showInteractiveTutorial ? "🧮 Guía Matemática Dinámica del Ejercicio" : "🧠 La Computación Moderna y la IA en la Regresión Lineal"}
+              {showInteractiveTutorial ? "Guía Matemática Dinámica del Ejercicio" : "La Computación Moderna y la IA en la Regresión Lineal"}
             </h2>
             <button
               onClick={() => setShowInteractiveTutorial(prev => !prev)}

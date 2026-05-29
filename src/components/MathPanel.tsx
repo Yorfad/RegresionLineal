@@ -11,8 +11,8 @@ interface MathPanelProps {
   calculations: any;
 }
 
-const f2 = (n: number) => n.toFixed(2);
-const f4 = (n: number) => n.toFixed(4);
+const f2 = (n: number) => parseFloat(n.toFixed(2)).toString();
+const f4 = (n: number) => parseFloat(n.toFixed(4)).toString();
 
 interface StepCardProps {
   stepId: Step;
