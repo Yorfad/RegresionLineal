@@ -96,9 +96,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             type="number"
             step="0.1"
             value={m}
-            disabled={locked}
-            onChange={(e) => setM(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className={`w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'}`}
+            readOnly={locked}
+            onChange={(e) => { if (!locked) setM(e.target.value === '' ? '' : parseFloat(e.target.value)); }}
+            className={`w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed pointer-events-none' : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'}`}
           />
         </div>
 
@@ -108,9 +108,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             type="number"
             step="0.1"
             value={b}
-            disabled={locked}
-            onChange={(e) => setB(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className={`w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'}`}
+            readOnly={locked}
+            onChange={(e) => { if (!locked) setB(e.target.value === '' ? '' : parseFloat(e.target.value)); }}
+            className={`w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed pointer-events-none' : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'}`}
           />
         </div>
 
@@ -120,9 +120,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
             type="number"
             step="0.001"
             value={learningRate}
-            disabled={locked}
-            onChange={(e) => setLearningRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
-            className={`w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed' : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'}`}
+            readOnly={locked}
+            onChange={(e) => { if (!locked) setLearningRate(e.target.value === '' ? '' : parseFloat(e.target.value)); }}
+            className={`w-full bg-slate-900 border rounded-lg px-3 py-2 text-slate-200 focus:outline-none transition-colors ${locked ? 'border-slate-800 opacity-50 cursor-not-allowed pointer-events-none' : 'border-slate-700 focus:border-slate-500 focus:ring-1 focus:ring-slate-500'}`}
           />
         </div>
       </div>
