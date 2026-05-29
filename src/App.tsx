@@ -125,7 +125,7 @@ function App() {
               </header>
 
               {/* Chart Area */}
-              <div className="h-[360px] shrink-0">
+              <div className="h-[400px] shrink-0">
                 <MainChart data={lr.data} m={lr.m} b={lr.b} />
               </div>
 

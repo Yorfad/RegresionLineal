@@ -15,7 +15,7 @@ export const MainChart: React.FC<MainChartProps> = ({ data, m, b }) => {
 
   if (validData.length === 0) {
     return (
-      <div className="w-full h-full min-h-[400px] bg-slate-800 rounded-xl border border-slate-700 p-4 flex items-center justify-center shadow-lg">
+      <div className="w-full h-full min-h-0 bg-slate-800 rounded-xl border border-slate-700 p-4 flex items-center justify-center shadow-lg">
         <p className="text-slate-400">No hay datos válidos para graficar.</p>
       </div>
     );
@@ -31,7 +31,7 @@ export const MainChart: React.FC<MainChartProps> = ({ data, m, b }) => {
   ];
 
   return (
-    <div className="w-full h-full min-h-[400px] bg-slate-800 rounded-xl border border-slate-700 p-4 shadow-lg">
+    <div className="w-full h-full min-h-0 bg-slate-800 rounded-xl border border-slate-700 p-4 shadow-lg">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
           <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
