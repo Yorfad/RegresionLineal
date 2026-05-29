@@ -125,7 +125,7 @@ function App() {
               </header>
 
               {/* Chart Area */}
-              <div className="flex-1 flex flex-col min-h-[300px]">
+              <div className="h-[360px] shrink-0">
                 <MainChart data={lr.data} m={lr.m} b={lr.b} />
               </div>
 
