@@ -182,25 +182,72 @@ export function useLinearRegression() {
     setCurrentStep(Step.PREDICTIONS);
   };
 
-  // Exact solution using normal equations — no gradient descent needed
+  // Runs gradient descent to convergence, records every iteration in history,
+  // then overwrites the final state with the analytically exact solution.
+  // This lets the student click "Anterior" to walk backwards through the
+  // full GD path that led to the solution.
   const solveAnalytically = () => {
     const cleanData = data
       .map((d) => ({ x: d.x === '' ? NaN : Number(d.x), y: d.y === '' ? NaN : Number(d.y) }))
       .filter((d) => Number.isFinite(d.x) && Number.isFinite(d.y));
     const n = cleanData.length;
     if (n < 2) return;
+
+    // ── Step 1: Compute the exact solution with Normal Equations ─────────
     const sumX  = cleanData.reduce((s, d) => s + d.x, 0);
     const sumY  = cleanData.reduce((s, d) => s + d.y, 0);
     const sumXY = cleanData.reduce((s, d) => s + d.x * d.y, 0);
     const sumX2 = cleanData.reduce((s, d) => s + d.x * d.x, 0);
     const denom = n * sumX2 - sumX * sumX;
     if (denom === 0) return;
-    const newM = (n * sumXY - sumX * sumY) / denom;
-    const newB = (sumY - newM * sumX) / n;
-    setHistory((prev) => [...prev, { iteration, m: Number(m) || 0, b: Number(b) || 0, mse: calculations?.mse ?? 0 }]);
-    setM(newM);
-    setB(newB);
-    setIteration((prev) => prev + 1);
+    const exactM = (n * sumXY - sumX * sumY) / denom;
+    const exactB = (sumY - exactM * sumX) / n;
+
+    // ── Step 2: Simulate GD from current m/b to build a navigable history ─
+    let localM = Number(m) || 0;
+    let localB = Number(b) || 0;
+    const lrNum = Number(learningRate) || 0.01;
+    let localIteration = iteration;
+    const tempHistory: HistoryRecord[] = [...history];
+    let prevMse = Infinity;
+    // Cap at 5 000 to avoid freezing the browser on very slow learning rates.
+    // The student can still navigate back through all recorded iterations.
+    const MAX_ITERATIONS = 5000;
+
+    for (let step = 0; step < MAX_ITERATIONS; step++) {
+      let gradM = 0, gradB = 0, errorSumSq = 0;
+      for (let i = 0; i < n; i++) {
+        const error = localM * cleanData[i].x + localB - cleanData[i].y;
+        gradM += error * cleanData[i].x;
+        gradB += error;
+        errorSumSq += error * error;
+      }
+      gradM = (2 / n) * gradM;
+      gradB = (2 / n) * gradB;
+      const currentMse = errorSumSq / n;
+
+      // Record the state BEFORE applying this iteration's update,
+      // so that navigating back shows consistent (m, b, mse) triples.
+      tempHistory.push({ iteration: localIteration, m: localM, b: localB, mse: currentMse });
+      localIteration++;
+
+      localM -= lrNum * gradM;
+      localB -= lrNum * gradB;
+
+      if (!isFinite(localM) || !isFinite(localB)) break; // explosion — still apply exact solution
+
+      const mseDelta = Math.abs(prevMse - currentMse);
+      if (mseDelta < 1e-8) break; // converged
+      prevMse = currentMse;
+    }
+
+    // ── Step 3: Overwrite the final state with the exact analytical answer ─
+    // History is kept (capped at last 500 records to limit memory).
+    // The iteration counter now shows how many GD steps the path took.
+    setHistory(tempHistory.slice(-500));
+    setM(exactM);
+    setB(exactB);
+    setIteration(localIteration);
     setCurrentStep(Step.PREDICTIONS);
   };
 

@@ -358,13 +358,10 @@ Usa **"Resolver (exacto)"** para llegar a la solución óptima en un solo paso.`
                      </div>
                      
                      <div className="flex items-center gap-2 bg-slate-950 px-3 py-1 border border-slate-800 rounded-md text-xs font-mono">
-                        {solvedAnalytically ? (
-                          <span className="text-slate-300 font-bold">SOLUCIÓN EXACTA</span>
-                        ) : (
-                          <>
-                            <span className="text-slate-500 font-bold">ITERACIÓN ACTUAL:</span>
-                            <span className="text-slate-200 font-bold text-sm">{lr.iteration}</span>
-                          </>
+                        <span className="text-slate-500 font-bold">ITERACIÓN ACTUAL:</span>
+                        <span className="text-slate-200 font-bold text-sm">{lr.iteration}</span>
+                        {solvedAnalytically && (
+                          <span className="text-slate-500 text-[10px] ml-1">(exacta)</span>
                         )}
                      </div>
                   </div>
