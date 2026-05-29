@@ -7,6 +7,7 @@ import { Chatbot } from './components/Chatbot';
 import { TheoryPage } from './pages/TheoryPage';
 import { LargeScaleSimulator } from './pages/LargeScaleSimulator';
 import { Play, SkipForward, SkipBack, RotateCcw, BookOpen, Activity, Cpu } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 function App() {
   const lr = useLinearRegression();
@@ -189,6 +190,35 @@ function App() {
                 gradB={lr.calculations?.gradB}
                 massiveState={massiveState}
               />
+
+              {/* Convergencia del error */}
+              {lr.history.length > 0 && (
+                <div className="bg-slate-800 rounded-xl border border-slate-700 p-4 shrink-0">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <span className="text-xs text-slate-500 font-semibold uppercase tracking-wide">Convergencia del error (MSE)</span>
+                      <p className="text-[11px] text-slate-600 mt-0.5">El modelo converge cuando la curva se aplana — los cambios en m y b son casi nulos</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-slate-500 block">MSE actual</span>
+                      <span className="font-mono font-bold text-slate-200">{parseFloat((lr.calculations?.mse ?? 0).toFixed(4))}</span>
+                    </div>
+                  </div>
+                  <ResponsiveContainer width="100%" height={90}>
+                    <LineChart data={lr.history.map(h => ({ it: h.iteration, mse: parseFloat(h.mse.toFixed(4)) }))}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                      <XAxis dataKey="it" tick={{ fontSize: 10, fill: '#64748b' }} label={{ value: 'iteración', position: 'insideBottomRight', offset: -4, fontSize: 10, fill: '#64748b' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#64748b' }} width={55} tickFormatter={v => parseFloat(v.toFixed(2)).toString()} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 6, fontSize: 11 }}
+                        labelFormatter={v => `Iteración ${v}`}
+                        formatter={(v: number) => [parseFloat(v.toFixed(4)), 'MSE']}
+                      />
+                      <Line type="monotone" dataKey="mse" stroke="#94a3b8" strokeWidth={2} dot={{ r: 3, fill: '#94a3b8' }} activeDot={{ r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
 
               {/* Chart Area */}
               <div className="flex-1 flex flex-col min-h-[300px]">
